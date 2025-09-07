@@ -1,0 +1,57 @@
+{% extends 'base.html' %} {% block content %} {% load static %}
+<style>
+  .btn-gradient{background:linear-gradient(90deg,#ff4d6d,#b5179e,#6a11cb);color:#fff!important;border:none!important;border-radius:10px;font-weight:600;box-shadow:0 6px 18px rgba(106,17,203,.35);transition:transform .15s ease,box-shadow .2s ease,filter .2s ease}
+  .btn-gradient:hover{filter:brightness(1.05);transform:translateY(-1px);box-shadow:0 10px 26px rgba(106,17,203,.5)}
+  .btn-gradient:active{transform:translateY(0)}
+
+  .search-input{color:#fff;background:transparent;border:1px solid transparent;border-radius:10px;padding:4.65px 12px;background-image:linear-gradient(#111,#111),linear-gradient(90deg,#ff4d6d,#b5179e,#6a11cb);background-origin:border-box;background-clip:padding-box,border-box}
+  .search-input::placeholder{color:rgba(255,255,255,.7)}
+  .search-input:focus{outline:none;box-shadow:0 0 0 4px rgba(106,17,203,.35)}
+</style>
+<div class="p-3">
+  <div class="container">
+    <div class="row mt-3">
+      <div class="col mx-auto mb-3">
+        <h2>List of Movies</h2>
+        <hr />
+        <p class="card-text">
+          <form method="GET">
+            <div class="row">
+              <div class="col-auto">
+                <div class="input-group col-auto">
+                  <input type="text" name="search" class="form-control search-input" placeholder="Find movies…">
+                </div>
+              </div>
+              <div class="col-auto">
+                <button class="btn btn-gradient" type="submit">Search</button>
+              </div>
+            </div>
+          </form>
+        </p>
+
+      </div>
+    </div>
+    <div class="row">
+      <!--- for DTL thing works like the .map function in React -->
+      {% for movie in template_data.movies %}
+      <div class="col-md-4 col-lg-3 mb-2">
+        <div class="p-2 card align-items-center pt-4" style="background-color: rgb(25, 25, 40); border-color:#6a11cb">
+          <img
+            src="{{ movie.image.url }}"
+            class="card-img-top rounded img-card-200"
+          />
+          <div class="card-body text-center">
+            <a
+              href="{% url 'movies.show' id=movie.id %}"
+              class="btn btn-gradient w-100"
+            >
+              {{ movie.name }}
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock content %}

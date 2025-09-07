@@ -1,0 +1,144 @@
+{% extends 'base.html' %} {% block content %} {% load cart_filters %}
+<style>
+  .modern-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 12px;
+    color: #fff;
+  }
+  .modern-table thead th {
+    background: linear-gradient(90deg, #b5179e, #6a11cb);
+    color: #fff;
+    padding: 12px;
+    border: none;
+    border-radius: 0px 0px 0 0;
+    text-transform: uppercase;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+  }
+  .modern-table tbody tr {
+    background: #1a1a1a;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .modern-table tbody tr:hover {
+    transform: scale(1.01);
+    box-shadow: 0 8px 24px rgba(106, 17, 203, 0.45),
+      0 4px 12px rgba(230, 57, 70, 0.25);
+  }
+  .modern-table td {
+    padding: 14px 12px;
+    border: none;
+  }
+  .btn-gradient-add-more-movies {
+    background: linear-gradient(90deg, #b5179e);
+    color: #fff !important;
+    border: none !important;
+    border-radius: 10px;
+    font-weight: 600;
+    box-shadow: 0 6px 18px rgba(106, 17, 203, 0.35);
+    transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  }
+  .btn-gradient-purchase {
+    background: linear-gradient(90deg, #6a11cb);
+    color: #fff !important;
+    border: none !important;
+    border-radius: 10px;
+    font-weight: 600;
+    box-shadow: 0 6px 18px rgba(106, 17, 203, 0.35);
+    transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  }
+  .btn-gradient:hover {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 26px rgba(106, 17, 203, 0.5);
+  }
+  .btn-gradient:active {
+    transform: translateY(0);
+  }
+  .total-box {
+    display: inline-block;
+    color: #fff;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    padding: 10px 16px;
+    background-image: linear-gradient(#111, #111),
+      linear-gradient(90deg, #ff4d6d #b5179e, #6a11cb);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  }
+  .action-btn {
+    min-width: 180px;
+    text-align: center;
+  }
+</style>
+<div class="p-3">
+  <div class="container">
+    <div class="row mt-3">
+      <div class="col mx-auto mb-3">
+        <h2>Shopping Cart</h2>
+        <hr />
+      </div>
+    </div>
+    <div class="row m-1">
+      <table class="modern-table text-center">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Name</th>
+            <th scope="col">Price</th>
+            <th scope="col">Quantity</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for movie in template_data.movies_in_cart %}
+          <tr>
+            <td>{{ movie.id }}</td>
+            <td>{{ movie.name }}</td>
+            <td>${{ movie.price }}</td>
+            <td>{{ request.session.cart|get_quantity:movie.id }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <!-- Total box under the table -->
+    <div class="row mt-2">
+      <div class="col text-start">
+        <span class="total-box"
+          ><b>Total to pay:</b> ${{ template_data.cart_total }}</span
+        >
+      </div>
+    </div>
+
+    <!-- Action buttons in a separate row -->
+    <div class="row mt-3">
+      <div class="col d-flex gap-2 flex-wrap justify-content-end">
+        <a href="/movies/" class="btn btn-gradient-add-more-movies"
+          >Add more movies</a
+        >
+        {% if template_data.movies_in_cart|length > 0 %}
+        <a href="{% url 'cart.purchase' %}" class="btn btn-gradient-purchase"
+          >Purchase</a
+        >
+        <a href="{% url 'cart.clear' %}"
+          ><button
+            class="btn action-btn"
+            style="
+              background-color: red;
+              color: white;
+              border: none !important;
+              border-radius: 10px;
+              font-weight: 600;
+            "
+          >
+            Remove all movies from Cart
+          </button></a
+        >
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,64 @@
+{% extends 'base.html' %} {% block content %}
+<style>
+  .purchase-card {
+    position: relative;
+    border-radius: 16px;
+    padding: 1px;
+    background: linear-gradient(90deg, #ff4d6d, #b5179e, #6a11cb);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  }
+  .purchase-surface {
+    border-radius: 15px;
+    background: #111;
+    color: #fff;
+    padding: 24px;
+    text-align: center;
+  }
+  .purchase-surface h2 {
+    font-weight: 800;
+    margin-bottom: 12px;
+  }
+  .purchase-surface p {
+    margin-bottom: 18px;
+    font-size: 16px;
+  }
+  .btn-gradient {
+    background: linear-gradient(90deg, #ff4d6d, #b5179e, #6a11cb);
+    color: #fff !important;
+    border: none !important;
+    border-radius: 10px;
+    font-weight: 600;
+    box-shadow: 0 6px 18px rgba(106, 17, 203, 0.35);
+    transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    padding: 10px 20px;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-gradient:hover {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 26px rgba(106, 17, 203, 0.5);
+  }
+</style>
+<div class="p-3">
+  <div class="container">
+    <div class="row mt-3">
+      <div class="col-md-8 mx-auto mb-3">
+        <div class="purchase-card">
+          <div class="purchase-surface">
+            <h2>Purchase Completed</h2>
+            <hr />
+            <p>
+              Congratulations, your purchase has been completed.<br />
+              Your order number is: <b>#{{ template_data.order_id }}</b>
+            </p>
+            <a href="{% url 'accounts.orders' %}" class="btn-gradient"
+              >View My Orders</a
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

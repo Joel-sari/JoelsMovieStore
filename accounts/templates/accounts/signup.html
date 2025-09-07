@@ -1,0 +1,84 @@
+{% extends 'base.html' %} {% block content %}
+<style>
+  .signup-card {
+    position: relative;
+    border-radius: 16px;
+    padding: 1px;
+    background: linear-gradient(90deg, #ff4d6d, #b5179e, #6a11cb);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  }
+  .signup-card:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 20px 48px rgba(106, 17, 203, 0.35);
+  }
+  .signup-surface {
+    border-radius: 15px;
+    background: #111;
+    color: #fff;
+    padding: 20px;
+  }
+  .signup-surface h2 {
+    font-weight: 800;
+    margin-bottom: 10px;
+    opacity: 0.95;
+  }
+
+  .form-control {
+    background: transparent;
+    color: #fff;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 10px;
+    background-image: linear-gradient(#111, #111),
+      linear-gradient(90deg, #ff4d6d, #b5179e, #6a11cb);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+  }
+  .form-control:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(106, 17, 203, 0.35);
+    color: #fff;
+  }
+  .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .btn-gradient {
+    background: linear-gradient(90deg, #ff4d6d, #b5179e, #6a11cb);
+    color: #fff !important;
+    border: none !important;
+    border-radius: 10px;
+    font-weight: 600;
+    box-shadow: 0 6px 18px rgba(106, 17, 203, 0.35);
+    transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    padding: 10px 20px;
+  }
+  .btn-gradient:hover {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 26px rgba(106, 17, 203, 0.5);
+  }
+</style>
+<div class="p-3 mt-4">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="signup-card shadow p-3 mb-4">
+          <div class="signup-surface">
+            <h2>Sign Up</h2>
+            <hr />
+            <!--We define form with its method as POST. This means that when the form is submitted, the data will be sent to the current server URL using the HTTP POST method.--->
+            <form method="POST">
+              <!--Inside the form, we use the DTL csrf_token template tag. It generates a Cross-Site Request Forgery (CSRF) token, which helps prevent CSRF attacks. It ensures that the form submission originates from the same site where the form is rendered. You should use this tag for all your Django forms.-->
+              {% csrf_token %} {{ template_data.form.as_p }}
+              <!--^ Inside the form, we render template_data.form, which represents the UserCreationForm instance passed from the view function. .as_p renders the form fields as HTML paragraphs (<p>), with each form field wrapped in its own paragraph. By default, UserCreationForm contains three form fields – username, password, and password confirmation.-->
+              <button type="submit" class="btn btn-gradient">Sign Up</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

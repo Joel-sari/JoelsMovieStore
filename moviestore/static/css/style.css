@@ -1,0 +1,42 @@
+.bg-redblue {
+  background: url("/static/img/redbluebackground.jpg") no-repeat fixed;
+  background-size: 100% auto;
+}
+/* style.css */
+#mainNav {
+  background-color: #001f3f !important;
+} /* navy */
+#mainNav .nav-link,
+#mainNav .navbar-brand {
+  color: #fffef6 !important;
+}
+.ms-footer {
+  background-color: #202020;
+}
+.ms-footer p {
+  color: #7f7f7f;
+  font-size: 13px;
+}
+.ms-footer a:hover {
+  color: #6ab43e;
+  text-decoration: none;
+}
+.ms-footer-bottom span {
+  font-size: 13px;
+  line-height: 38px;
+}
+.ms-footer-bottom a {
+  color: #6ab43e;
+  text-decoration: none;
+}
+.ms-footer-bottom a:hover {
+  color: #fff;
+}
+.img-card-200 {
+  width: fit-content;
+  max-height: 200px;
+}
+.img-card-400 {
+  width: fit-content;
+  max-height: 400px;
+}

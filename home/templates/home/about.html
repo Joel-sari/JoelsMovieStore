@@ -1,0 +1,36 @@
+{% extends 'base.html' %} {% block content %} {% load static %}
+<div class="p-3">
+  <div class="container">
+    <div class="row mt-3">
+      <div class="col-md-6 mx-auto mb-3 text-center">
+        <img
+          src="{% static 'img/Aboutimage.png' %}"
+          alt="Movies Store Genres"
+          style="
+            max-width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6);
+          "
+        />
+      </div>
+      <div class="col-md-6 mx-auto mb-3">
+        <h2>About</h2>
+        <hr />
+        <p>
+          At Movies Store, you’ll find a rich collection of films across every
+          genre, so there’s always something to match your mood. From the newest
+          blockbusters to timeless favorites and hidden gems, our library makes
+          it easy to discover, rent, or buy movies and start streaming in high
+          definition within minutes.
+        </p>
+        <p>
+          Our platform is designed for convenience — watch your movies anytime
+          on the device you love, whether that’s a smart TV, tablet, or phone.
+          With built-in search and personalized recommendations, choosing your
+          next movie night feature has never been simpler.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

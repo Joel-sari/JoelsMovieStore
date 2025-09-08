@@ -7,6 +7,16 @@
   .search-input{color:#fff;background:transparent;border:1px solid transparent;border-radius:10px;padding:4.65px 12px;background-image:linear-gradient(#111,#111),linear-gradient(90deg,#ff4d6d,#b5179e,#6a11cb);background-origin:border-box;background-clip:padding-box,border-box}
   .search-input::placeholder{color:rgba(255,255,255,.7)}
   .search-input:focus{outline:none;box-shadow:0 0 0 4px rgba(106,17,203,.35)}
+
+  /* hard override for card images (Safari friendly) */
+  img[style*="--poster"] {
+    display: block !important;
+    transition: transform 0.25s cubic-bezier(0.4,0,0.2,1), box-shadow 0.25s cubic-bezier(0.4,0,0.2,1);
+  }
+  img[style*="--poster"]:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 32px 0 rgba(106,17,203,0.24), 0 2px 8px 0 rgba(0,0,0,0.10);
+  }
 </style>
 <div class="p-3">
   <div class="container">
@@ -32,18 +42,19 @@
       </div>
     </div>
     <div class="row">
-      <!--- for DTL thing works like the .map function in React -->
       {% for movie in template_data.movies %}
-      <div class="col-md-4 col-lg-3 mb-2">
-        <div class="p-2 card align-items-center pt-4" style="background-color: rgb(25, 25, 40); border-color:#6a11cb">
+      <div class="col-auto mb-3">
+        <div class="p-2 card align-items-center pt-3" style="background-color: rgb(25, 25, 40); border-color:#6a11cb; width: 240px !important;">
           <img
             src="{{ movie.image.url }}"
-            class="card-img-top rounded img-card-200"
+            alt="{{ movie.name }} poster"
+            style="--poster:1; width: 220px !important; height: 330px !important; object-fit: cover !important; object-position: center !important; border-radius: 8px !important;"
           />
-          <div class="card-body text-center">
+          <div class="card-body text-center" style="width: 100%">
             <a
               href="{% url 'movies.show' id=movie.id %}"
               class="btn btn-gradient w-100"
+              style="margin-top: 6px"
             >
               {{ movie.name }}
             </a>

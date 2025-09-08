@@ -15,6 +15,32 @@
   .trend-card:hover img {
     transform: scale(1.06);
   }
+  /* keep trending grid centered and fixed tile widths */
+  .trending-fixed {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+  }
+  .trending-header {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 60px 0 40px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .see-all-link {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #ff4d6d;
+    text-decoration: underline;
+    margin-right: 15px;
+    transition: color 0.2s ease;
+  }
+  .see-all-link:hover {
+    color: #b5179e;
+  }
 </style>
 <!-- HERO / HEADER -->
 <header
@@ -141,32 +167,18 @@
   style="color: #fff; padding: 28px 0 72px; background: rgba(0, 0, 0, 0.25)"
 >
   <div class="container">
-    <div class="row" style="margin-bottom: 10px">
-      <div
-        class="col-12 d-flex justify-content-between align-items-end"
-        style="gap: 10px"
-      >
-        <h4 style="margin: 0; font-weight: 800">Trending Now</h4>
-        <a
-          href="/movies/"
-          style="
-            color: #fff;
-            opacity: 0.9;
-            text-decoration: none;
-            border-bottom: 1px dashed rgba(255, 255, 255, 0.5);
-          "
-          >See all</a
-        >
-      </div>
+    <div class="trending-header col-12">
+      <span>Trending Now</span>
+      <a href="/movies/" class="see-all-link">See all</a>
     </div>
 
-    <div class="row" style="display: flex; gap: 16px; flex-wrap: wrap">
+    <div class="row trending-fixed">
       <!-- Card 1 -->
       <a
         href="/movies/"
         style="
-          flex: 1 1 220px;
-          max-width: 260px;
+          width: 260px;
+          flex: 0 0 260px;
           text-decoration: none;
           color: #fff;
         "
@@ -185,9 +197,10 @@
             src="/media/movie_images/infinitywar.jpg"
             alt="Infinity War"
             style="
-              width: 100%;
-              height: 160px;
-              object-fit: cover;
+              width: 260px !important;
+              height: 220px !important;
+              object-fit: cover !important;
+              object-position: center !important;
               display: block;
             "
           />
@@ -204,8 +217,8 @@
       <a
         href="/movies/"
         style="
-          flex: 1 1 220px;
-          max-width: 260px;
+          width: 260px;
+          flex: 0 0 260px;
           text-decoration: none;
           color: #fff;
         "
@@ -224,9 +237,10 @@
             src="/media/movie_images/FastFurious1.jpg"
             alt="Fast & Furious"
             style="
-              width: 100%;
-              height: 160px;
-              object-fit: cover;
+              width: 260px !important;
+              height: 220px !important;
+              object-fit: cover !important;
+              object-position: center !important;
               display: block;
             "
           />
@@ -241,8 +255,8 @@
       <a
         href="/movies/"
         style="
-          flex: 1 1 220px;
-          max-width: 260px;
+          width: 260px;
+          flex: 0 0 260px;
           text-decoration: none;
           color: #fff;
         "
@@ -261,9 +275,10 @@
             src="/media/movie_images/kungfupanda.jpg"
             alt="Kung Fu Panda"
             style="
-              width: 100%;
-              height: 160px;
-              object-fit: cover;
+              width: 260px !important;
+              height: 220px !important;
+              object-fit: cover !important;
+              object-position: center !important;
               display: block;
             "
           />
@@ -278,8 +293,8 @@
       <a
         href="/movies/"
         style="
-          flex: 1 1 220px;
-          max-width: 260px;
+          width: 260px;
+          flex: 0 0 260px;
           text-decoration: none;
           color: #fff;
         "
@@ -298,9 +313,10 @@
             src="/media/movie_images/Rio.jpg"
             alt="Rio"
             style="
-              width: 100%;
-              height: 160px;
-              object-fit: cover;
+              width: 260px !important;
+              height: 220px !important;
+              object-fit: cover !important;
+              object-position: center !important;
               display: block;
             "
           />
@@ -314,8 +330,8 @@
       <a
         href="/movies/"
         style="
-          flex: 1 1 220px;
-          max-width: 260px;
+          width: 260px;
+          flex: 0 0 260px;
           text-decoration: none;
           color: #fff;
         "
@@ -331,9 +347,10 @@
             src="/media/movie_images/IT.jpg"
             alt="IT"
             style="
-              width: 100%;
-              height: 160px;
-              object-fit: cover;
+              width: 260px !important;
+              height: 220px !important;
+              object-fit: cover !important;
+              object-position: center !important;
               display: block;
             "
           />
@@ -342,6 +359,108 @@
             <div style="opacity: 0.85; font-size: 13px">
               Horror • Thriller • 2017
             </div>
+          </div>
+        </div>
+      </a>
+      <!--- Card 6 -->
+      <a
+        href="/movies/"
+        style="
+          width: 260px;
+          flex: 0 0 260px;
+          text-decoration: none;
+          color: #fff;
+        "
+      >
+        <div
+          class="trend-card"
+          style="
+            background: rgba(255, 255, 255, 0.04);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+          "
+        >
+          <img
+            src="/media/movie_images/Avatar.jpg"
+            alt="IT"
+            style="
+              width: 260px !important;
+              height: 220px !important;
+              object-fit: cover !important;
+              object-position: center !important;
+              display: block;
+            "
+          />
+          <div style="padding: 12px 12px 14px">
+            <div style="font-weight: 700">Avatar</div>
+            <div style="opacity: 0.85; font-size: 13px">Action • Animated</div>
+          </div>
+        </div>
+      </a>
+      <!--- Card 7 -->
+      <a
+        href="/movies/"
+        style="
+          width: 260px;
+          flex: 0 0 260px;
+          text-decoration: none;
+          color: #fff;
+        "
+      >
+        <div
+          class="trend-card"
+          style="
+            background: rgba(255, 255, 255, 0.04);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+          "
+        >
+          <img
+            src="/media/movie_images/Minecraft.jpg"
+            alt="IT"
+            style="
+              width: 260px !important;
+              height: 220px !important;
+              object-fit: cover !important;
+              object-position: center !important;
+              display: block;
+            "
+          />
+          <div style="padding: 12px 12px 14px">
+            <div style="font-weight: 700">Minecraft Movie</div>
+            <div style="opacity: 0.85; font-size: 13px">Comedy • Family</div>
+          </div>
+        </div>
+      </a>
+      <!-- Card 8 -->
+      <a
+        href="/movies/"
+        style="
+          width: 260px;
+          flex: 0 0 260px;
+          text-decoration: none;
+          color: #fff;
+        "
+      >
+        <div
+          class="trend-card"
+          style="
+            background: rgba(255, 255, 255, 0.04);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+          "
+        >
+          <img
+            src="/media/movie_images/LionKing.jpg"
+            alt="LionKing"
+            style="
+              width: 260px !important;
+              height: 220px !important;
+              object-fit: cover !important;
+              object-position: center !important;
+              display: block;
+            "
+          />
+          <div style="padding: 12px 12px 14px">
+            <div style="font-weight: 700">The Lion King</div>
+            <div style="opacity: 0.85; font-size: 13px">Family • Animated</div>
           </div>
         </div>
       </a>

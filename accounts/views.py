@@ -13,20 +13,28 @@ def logout(request):
     return redirect('home.index')
 
 def login(request):
+    from django.contrib import messages
     template_data = {}
     template_data['title'] = 'Login'
     if request.method == 'GET':
         return render(request, 'accounts/login.html',
          {'template_data': template_data})
     elif request.method == 'POST':
-        user = authenticate(request, username = request.POST['username'],password = request.POST['password'])
+        user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
         if user is None:
-            template_data['error'] ='The username or password is incorrect.'
+            template_data['error'] = 'The username or password is incorrect.'
             return render(request, 'accounts/login.html',
                 {'template_data': template_data})
         else:
-            auth_login(request, user)
-            return redirect('home.index')
+            # Check for security phrase
+            if not hasattr(user, 'profile') or not user.profile.security_phrase:
+                auth_login(request, user)
+                messages.info(request, "No security phrase set up. Please go to Settings to create one.")
+                return redirect('home.index')
+            else:
+                # Temporarily store user id for verification
+                request.session['temp_user_id'] = user.id
+                return redirect('accounts.verify_security')
 
 
 
@@ -75,3 +83,50 @@ def orders(request):
     template_data['orders'] = request.user.order_set.all()
     return render(request, 'accounts/orders.html',
         {'template_data': template_data})
+
+
+# Settings view for user profile management
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def settings(request):
+    # Ensure profile exists
+    if hasattr(request.user, 'profile'):
+        profile = request.user.profile
+        created = False
+    else:
+        from .models import Profile
+        profile = Profile.objects.create(user=request.user)
+        created = True
+
+    if request.method == 'POST':
+        profile.security_phrase = request.POST.get("security_phrase")
+        profile.security_answer = request.POST.get("security_answer")
+        profile.save()
+        return redirect('accounts.settings')
+
+    template_data = {
+        'title': 'Settings',
+        'profile': profile
+    }
+    return render(request, 'accounts/settings.html', {'template_data': template_data})
+
+
+# Security phrase verification view
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+
+@login_required
+def verify_security(request):
+    profile = request.user.profile
+    if request.method == "POST":
+        answer = request.POST.get("security_answer")
+        if answer and answer.strip().lower() == (profile.security_answer or "").strip().lower():
+            from django.contrib import messages
+            messages.success(request, "Security phrase verified successfully.")
+            return redirect('home.index')
+        else:
+            from django.contrib import messages
+            messages.error(request, "Incorrect security answer. Please try again.")
+    return render(request, "accounts/verification.html", {"profile": profile})

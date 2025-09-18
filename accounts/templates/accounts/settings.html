@@ -1,0 +1,36 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container mt-5" style="color: white">
+  <h2>Account Settings</h2>
+  <hr />
+
+  <form method="POST">
+    {% csrf_token %}
+
+    <div class="mb-3">
+      <label for="security_phrase" class="form-label">Security Phrase</label>
+      <input
+        type="text"
+        class="form-control"
+        id="security_phrase"
+        name="security_phrase"
+        value="{{ user.profile.security_phrase|default:'' }}"
+        required
+      />
+    </div>
+
+    <div class="mb-3">
+      <label for="security_answer" class="form-label">Answer</label>
+      <input
+        type="text"
+        class="form-control"
+        id="security_answer"
+        name="security_answer"
+        value="{{ user.profile.security_answer|default:'' }}"
+        required
+      />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+  </form>
+</div>
+{% endblock %}

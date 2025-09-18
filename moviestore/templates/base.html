@@ -107,6 +107,12 @@
             {% if user.is_authenticated %}
             <a
               class="nav-link"
+              href="{% url 'accounts.settings' %}"
+              style="color: white"
+              >Settings</a
+            >
+            <a
+              class="nav-link"
               href="{% url 'accounts.orders' %}"
               style="color: white"
               >Orders

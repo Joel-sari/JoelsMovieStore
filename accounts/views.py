@@ -28,20 +28,19 @@ def login(request):
             return render(request, 'accounts/login.html',
                 {'template_data': template_data})
         else:
-            # Check for security phrase
-            if not hasattr(user, 'profile') or not user.profile.security_phrase:
-                auth_login(request, user)
-                messages.info(request, "No security phrase set up. Please go to Settings to create one.")
-                return redirect('home.index')
-            else:
-                # Temporarily store user id for verification
-                request.session['temp_user_id'] = user.id
-                return redirect('accounts.verify_security')
+            # The old check for user.profile.security_phrase has been removed
+            # because signup now always creates a security question and answer,
+            # so this check is no longer necessary.
+            auth_login(request, user)
+            messages.success(request, "Welcome back!")
+            return redirect('home.index')
 
 
 
 # We imported UserCreationForm, which is a built-in form class provided by Django. It is designed to facilitate the creation of user registration forms, specifically to create new user accounts.
 from django.contrib.auth.forms import UserCreationForm
+from .models import Profile
+
 def signup(request):
     template_data = {}
     #We created our template_data variable and assigned it a title.
@@ -62,7 +61,17 @@ def signup(request):
         #The if form.is_valid() checks whether the submitted form data is valid, according to the validation rules defined in the UserCreationForm class. These validations include that the two password fields match, the password is not common, and the username is unique, among others.
         if form.is_valid():
         #If the form data is valid, form.save() saves the user data to the database. This means creating a new user account with the provided username and password. Also, we redirect the user to the home page based on the URL pattern name.
-            form.save()
+            # Save the user object first
+            user = form.save()
+
+            # ✅ Create a profile immediately with security question + answer
+            Profile.objects.create(
+                user=user,
+                security_question=form.cleaned_data['security_question'],
+                security_answer=form.cleaned_data['security_answer']
+            )
+
+            # Redirect to login page after successful signup
             return redirect('accounts.login')
         else:
         #If the form data is not valid, the else section is executed, and we pass the form (including the errors) to the template and render the accounts/signup.html template again.

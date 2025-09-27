@@ -70,9 +70,79 @@
             <hr />
             <!--We define form with its method as POST. This means that when the form is submitted, the data will be sent to the current server URL using the HTTP POST method.--->
             <form method="POST">
-              <!--Inside the form, we use the DTL csrf_token template tag. It generates a Cross-Site Request Forgery (CSRF) token, which helps prevent CSRF attacks. It ensures that the form submission originates from the same site where the form is rendered. You should use this tag for all your Django forms.-->
-              {% csrf_token %} {{ template_data.form.as_p }}
-              <!--^ Inside the form, we render template_data.form, which represents the UserCreationForm instance passed from the view function. .as_p renders the form fields as HTML paragraphs (<p>), with each form field wrapped in its own paragraph. By default, UserCreationForm contains three form fields – username, password, and password confirmation.-->
+              {% csrf_token %}
+
+              <div class="mb-3">
+                <label for="{{ template_data.form.username.id_for_label }}"
+                  >Username</label
+                >
+                {{ template_data.form.username }}
+                <!-- spacer -->
+                {% if template_data.form.username.errors %}
+                <div class="alert alert-danger mt-2">
+                  {{ template_data.form.username.errors }}
+                </div>
+                {% endif %}
+              </div>
+
+              <div class="mb-3">
+                <label for="{{ template_data.form.password1.id_for_label }}"
+                  >Password</label
+                >
+
+                {{ template_data.form.password1 }}
+                <!-- spacer -->
+                {% if template_data.form.password1.errors %}
+                <div class="alert alert-danger mt-2">
+                  {{ template_data.form.password1.errors }}
+                </div>
+                {% endif %}
+              </div>
+
+              <div class="mb-3">
+                <label for="{{ template_data.form.password2.id_for_label }}"
+                  >Confirm Password</label
+                >
+
+                {{ template_data.form.password2 }}
+                <!-- spacer -->
+                {% if template_data.form.password2.errors %}
+                <div class="alert alert-danger mt-2">
+                  {{ template_data.form.password2.errors }}
+                </div>
+                {% endif %}
+              </div>
+
+              <div class="mb-3">
+                <label
+                  for="{{ template_data.form.security_question.id_for_label }}"
+                  >Security Question</label
+                >
+
+                {{ template_data.form.security_question }}
+                <!-- spacer -->
+                {% if template_data.form.security_question.errors %}
+                <div class="alert alert-danger mt-2">
+                  {{ template_data.form.security_question.errors }}
+                </div>
+                {% endif %}
+              </div>
+
+              <div class="mb-3">
+                <label
+                  for="{{ template_data.form.security_answer.id_for_label }}"
+                  >Answer</label
+                >
+
+                {{ template_data.form.security_answer }}
+                <!-- spacer -->
+                {% if template_data.form.security_answer.errors %}
+                <div class="alert alert-danger mt-2">
+                  {{ template_data.form.security_answer.errors }}
+                </div>
+                {% endif %}
+              </div>
+
               <button type="submit" class="btn btn-gradient">Sign Up</button>
             </form>
           </div>

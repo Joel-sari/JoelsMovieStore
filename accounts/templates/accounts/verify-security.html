@@ -1,49 +1,85 @@
 {% extends 'base.html' %} {% block content %}
-<div class="p-3 mt-4">
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-md-8">
-        <div class="login-card shadow p-3 mb-4">
-          <div class="login-surface">
-            <h2>Verify Security Question</h2>
-            <hr />
+<style>
+  .login-card {
+    border-radius: 12px;
+    padding: 2px;
+    background: linear-gradient(90deg, #d53369 0%, #daae51 100%);
+    max-width: 480px;
+    margin: 3rem auto;
+  }
+  .login-surface {
+    background: #111;
+    border-radius: 10px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    color: rgba(255, 255, 255, 0.9);
+  }
+  label.form-label {
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 600;
+  }
+  .form-control {
+    background-color: #222;
+    border: 2px solid;
+    border-image-slice: 1;
+    border-width: 2px;
+    border-image-source: linear-gradient(90deg, #d53369 0%, #daae51 100%);
+    color: #fff;
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+  }
+  .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+  .btn-gradient {
+    background: linear-gradient(90deg, #d53369 0%, #daae51 50%, #6a11cb 100%);
+    border: none;
+    color: white;
+    padding: 0.6rem 1.25rem;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+  }
+  .btn-gradient:hover {
+    opacity: 0.85;
+  }
+</style>
 
-            {% if error %}
-            <div class="alert alert-danger" role="alert">{{ error }}</div>
-            {% endif %}
+<div class="login-card">
+  <div class="login-surface">
+    <h2>Verify Security Question</h2>
+    <hr />
 
-            <form method="POST">
-              {% csrf_token %}
-              <input
-                type="hidden"
-                name="username"
-                value="{{ profile.user.username }}"
-              />
-              <div class="mb-3">
-                <!-- show the user's saved question 
-                 {{ profile.get_security_question_display }} is the magic: Django automatically gives you the human-readable label for the stored choice.
-                -->
+    {% if error %}
+    <div class="alert alert-danger" role="alert">{{ error }}</div>
+    {% endif %}
 
-                <label for="security_answer" class="form-label">
-                  {{ profile.get_security_question_display }}
-                </label>
-                <input
-                  type="text"
-                  id="security_answer"
-                  name="security_answer"
-                  required
-                  class="form-control"
-                  placeholder="Enter your answer"
-                />
-              </div>
-              <div class="text-center">
-                <button type="submit" class="btn btn-gradient">Verify</button>
-              </div>
-            </form>
-          </div>
-        </div>
+    <form method="POST">
+      {% csrf_token %}
+      <input
+        type="hidden"
+        name="username"
+        value="{{ profile.user.username }}"
+      />
+      <label for="security_answer" class="form-label"
+        >{{ profile.get_security_question_display }}</label
+      >
+      <input
+        type="text"
+        id="security_answer"
+        name="security_answer"
+        required
+        class="form-control"
+        placeholder="Enter your answer"
+      />
+      <div style="text-align: center; margin-top: 1rem">
+        <button type="submit" class="btn-gradient">Verify</button>
       </div>
-    </div>
+    </form>
   </div>
 </div>
 {% endblock content %}

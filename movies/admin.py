@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Movie, Review
+from .models import Movie, Review, Petition, PetitionVote
 
 # We created a MovieAdmin class that inherits from admin.ModelAdmin. This defines a custom admin class that allows you to customize the behavior of the admin interface for the Movie model.
 class MovieAdmin(admin.ModelAdmin):
@@ -13,3 +13,6 @@ class MovieAdmin(admin.ModelAdmin):
 admin.site.register(Movie, MovieAdmin)
 
 admin.site.register(Review)
+
+admin.site.register(Petition)
+admin.site.register(PetitionVote)

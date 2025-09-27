@@ -1,0 +1,61 @@
+{% extends 'base.html' %} {% block content %}
+<div class="login-card mx-auto my-5" style="max-width: 420px">
+  <div class="login-surface p-4 rounded-4 shadow">
+    <h2 class="mb-4 text-center fw-bold">Create Petition</h2>
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="title" class="form-label">Title</label>
+        <input
+          type="text"
+          id="title"
+          name="title"
+          class="form-control"
+          required
+        />
+      </div>
+      <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <textarea
+          id="description"
+          name="description"
+          class="form-control"
+          rows="5"
+          required
+        ></textarea>
+      </div>
+      <button type="submit" class="btn btn-gradient w-100 fw-semibold">
+        Create
+      </button>
+    </form>
+  </div>
+</div>
+
+<style>
+  .login-card {
+    border-radius: 1.5rem;
+    background: linear-gradient(135deg, #7f5af0, #2cb67d, #7f5af0);
+    padding: 2px;
+    box-shadow: 0 4px 32px 0 rgba(0, 0, 0, 0.15);
+  }
+  .login-surface {
+    background: #16161a;
+    border-radius: 1.4rem;
+  }
+  .btn-gradient {
+    background: linear-gradient(90deg, #7f5af0, #2cb67d 90%);
+    color: #fff;
+    border: none;
+    transition: box-shadow 0.2s;
+    box-shadow: 0 2px 8px 0 rgba(127, 90, 240, 0.08);
+  }
+  .btn-gradient:hover,
+  .btn-gradient:focus {
+    background: linear-gradient(90deg, #2cb67d, #7f5af0 90%);
+    color: #fff;
+  }
+</style>
+{% endblock %}

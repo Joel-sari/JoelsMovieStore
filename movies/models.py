@@ -42,3 +42,29 @@ class Review(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     def __str__(self):
         return str(self.id) + ' - ' + self.movie.name
+
+class Petition(models.Model):
+    id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=255)  # short description of petition
+    description = models.TextField(blank=True, null=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+
+class PetitionVote(models.Model):
+    petition = models.ForeignKey(Petition, on_delete=models.CASCADE, related_name="votes")
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    VOTE_CHOICES = [
+        ("yes", "Yes"),
+        ("no", "No"),
+    ]
+    vote = models.CharField(max_length=3, choices=VOTE_CHOICES)
+
+    class Meta:
+        unique_together = ("petition", "user")  # prevent duplicate voting
+
+    def __str__(self):
+        return f"{self.user.username} voted {'Yes' if self.vote else 'No'}"

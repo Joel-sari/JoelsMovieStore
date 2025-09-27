@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Movie, Review
+from .models import Movie, Review, Petition, PetitionVote
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 
 """Now, it will retrieve all movies if the search parameter is not sent in the current request, or it will retrieve specific movies based on the search parameter. Let’s explain the previous code."""
@@ -93,3 +94,63 @@ def delete_review(request, id, review_id):
         user=request.user)
     review.delete()
     return redirect('movies.show', id=id)
+
+
+@login_required
+def petition_list(request):
+    petitions = Petition.objects.all()
+    return render(request, "movies/petition_list.html", {"petitions": petitions})
+
+@login_required
+def create_petition(request):
+    if request.method == "POST":
+        title = request.POST["title"]
+        description = request.POST.get("description", "")
+        Petition.objects.create(
+            title=title,
+            description=description,
+            created_by=request.user
+        )
+        return redirect("movies.petition_list")
+    return render(request, "movies/create_petition.html", {})
+
+@login_required
+def vote_petition(request, petition_id):
+    petition = get_object_or_404(Petition, id=petition_id)
+    if request.method == "POST":
+        vote_value = request.POST.get("vote")  # should be "yes" or "no"
+        if vote_value in ("yes", "no"):
+            vote, created = PetitionVote.objects.update_or_create(
+                petition=petition,
+                user=request.user,
+                defaults={"vote": vote_value}
+            )
+            # Show a friendly confirmation once after voting
+            if created:
+                  messages.success(request, f"You voted {vote_value.capitalize()}!")
+            else:
+                messages.success(request, f"Your vote has been updated to {vote_value.capitalize()}!")
+    # Redirect back to the petition detail so counts/buttons update
+    return redirect("movies.petition_detail", id=petition.id)
+def petition_detail(request, id):
+    # Fetch the petition by ID or return 404 if not found
+    petition = get_object_or_404(Petition, id=id)
+
+    # Aggregate current vote counts
+    votes_yes = petition.votes.filter(vote="yes").count()
+    votes_no = petition.votes.filter(vote="no").count()
+
+    # Determine whether the current user has already voted (and what they chose)
+    user_vote = None
+    if request.user.is_authenticated:
+        existing_vote = petition.votes.filter(user=request.user).first()
+        if existing_vote:
+            user_vote = existing_vote.vote  # "yes" or "no"
+
+    context = {
+        "petition": petition,
+        "votes_yes": votes_yes,
+        "votes_no": votes_no,
+        "user_vote": user_vote,
+    }
+    return render(request, "movies/petition_detail.html", context)

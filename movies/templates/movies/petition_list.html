@@ -1,0 +1,101 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container mt-5 mb-5">
+  <h2 class="mb-4 text-white">Petitions</h2>
+  <p class="mb-4" style="color: lightgray">
+    Suggest new movies you think users would like added to the store and vote on
+    petitions created by others. The most supported petitions will help guide
+    which movies should be prioritized by the admin.
+  </p>
+  <hr class="text-white" />
+
+  {% if petitions %}
+  <div class="row">
+    {% for petition in petitions %}
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div
+        class="card shadow-sm h-100"
+        style="
+          background-color: #111;
+          color: white;
+          border-radius: 2rem;
+          border: 2px solid;
+          border-image-slice: 1;
+          border-width: 2px;
+          border-image-source: linear-gradient(45deg, #ff6ec4, #7873f5);
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        "
+      >
+        <div class="card-body d-flex flex-column" style="border-radius: 2rem">
+          <h3 class="card-title">{{ petition.title }}</h3>
+          <p class="card-text">{{ petition.description|truncatewords:20 }}</p>
+          <div class="mt-auto">
+            <a
+              href="{% url 'movies.petition_detail' petition.id %}"
+              class="btn btn-gradient create-petition-btn btn-sm"
+            >
+              View Petition
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="alert alert-info">
+    No petitions available yet. Be the first to create one!
+  </div>
+  {% endif %}
+  <div class="mt-4 text-center">
+    <a
+      href="{% url 'movies.create_petition' %}"
+      class="btn btn-gradient create-petition-btn"
+      >Create Petition</a
+    >
+  </div>
+</div>
+<script>
+  document.querySelectorAll(".card").forEach((card) => {
+    card.addEventListener("mouseenter", () => {
+      card.style.transform = "scale(1.03)";
+      card.style.boxShadow = "0 8px 20px rgba(255, 110, 196, 0.6)";
+    });
+    card.addEventListener("mouseleave", () => {
+      card.style.transform = "scale(1)";
+      card.style.boxShadow = "none";
+    });
+  });
+</script>
+
+<style>
+  .btn-gradient.create-petition-btn {
+    background: linear-gradient(90deg, #ff6ec4 0%, #7873f5 100%);
+    color: #fff;
+    padding: 0.85rem 2.2rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 2rem;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 14px rgba(120, 115, 245, 0.15);
+    transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+      filter 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+  }
+  .card .btn-gradient.create-petition-btn {
+    padding: 0.4rem 1rem;
+    font-size: 0.9rem;
+    border-radius: 1rem;
+    font-weight: 600;
+    box-shadow: 0 3px 10px rgba(120, 115, 245, 0.1);
+  }
+  .btn-gradient.create-petition-btn:hover,
+  .btn-gradient.create-petition-btn:focus {
+    filter: brightness(1.12);
+    transform: scale(1.045);
+    box-shadow: 0 6px 24px rgba(255, 110, 196, 0.25);
+    text-decoration: none;
+    color: #fff;
+  }
+</style>
+{% endblock %}

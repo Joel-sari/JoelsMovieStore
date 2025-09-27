@@ -5,18 +5,27 @@
       <div class="col-md-8">
         <div class="login-card shadow p-3 mb-4">
           <div class="login-surface">
-            <h2>Verify Security Phrase</h2>
+            <h2>Verify Security Question</h2>
             <hr />
-            {% if messages %} {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}" role="alert">
-              {{ message }}
-            </div>
-            {% endfor %} {% endif %}
+
+            {% if error %}
+            <div class="alert alert-danger" role="alert">{{ error }}</div>
+            {% endif %}
+
             <form method="POST">
               {% csrf_token %}
+              <input
+                type="hidden"
+                name="username"
+                value="{{ profile.user.username }}"
+              />
               <div class="mb-3">
+                <!-- show the user's saved question 
+                 {{ profile.get_security_question_display }} is the magic: Django automatically gives you the human-readable label for the stored choice.
+                -->
+
                 <label for="security_answer" class="form-label">
-                  {{ profile.security_phrase }}
+                  {{ profile.get_security_question_display }}
                 </label>
                 <input
                   type="text"
@@ -24,6 +33,7 @@
                   name="security_answer"
                   required
                   class="form-control"
+                  placeholder="Enter your answer"
                 />
               </div>
               <div class="text-center">

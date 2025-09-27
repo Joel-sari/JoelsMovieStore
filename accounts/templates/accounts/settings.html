@@ -1,36 +1,151 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %} {% block content %}{% load widget_tweaks %}
 <div class="container mt-5" style="color: white">
   <h2>Account Settings</h2>
+  {% if updated %}
+  <div class="alert alert-success mt-3" role="alert">
+    ✅ Your profile has been updated successfully!
+  </div>
+  {% endif %}
   <hr />
 
   <form method="POST">
     {% csrf_token %}
 
+    <!-- Added placeholders and Bootstrap classes for better UX and consistency -->
     <div class="mb-3">
-      <label for="security_phrase" class="form-label">Security Phrase</label>
+      <label for="{{ form.first_name.id_for_label }}" class="form-label"
+        >First Name</label
+      >
       <input
         type="text"
+        name="{{ form.first_name.name }}"
+        id="{{ form.first_name.id_for_label }}"
         class="form-control"
-        id="security_phrase"
-        name="security_phrase"
-        value="{{ user.profile.security_phrase|default:'' }}"
-        required
+        placeholder="Enter first name"
+        value="{{ form.first_name.value|default_if_none:'' }}"
       />
     </div>
 
+    <!-- Added placeholders and Bootstrap classes for better UX and consistency -->
     <div class="mb-3">
-      <label for="security_answer" class="form-label">Answer</label>
+      <label for="{{ form.last_name.id_for_label }}" class="form-label"
+        >Last Name</label
+      >
       <input
         type="text"
+        name="{{ form.last_name.name }}"
+        id="{{ form.last_name.id_for_label }}"
         class="form-control"
-        id="security_answer"
-        name="security_answer"
-        value="{{ user.profile.security_answer|default:'' }}"
-        required
+        placeholder="Enter last name"
+        value="{{ form.last_name.value|default_if_none:'' }}"
+      />
+    </div>
+
+    <!-- Added placeholders and Bootstrap classes for better UX and consistency -->
+    <div class="mb-3">
+      <label for="{{ form.favorite_movie.id_for_label }}" class="form-label"
+        >Favorite Movie</label
+      >
+      <input
+        type="text"
+        name="{{ form.favorite_movie.name }}"
+        id="{{ form.favorite_movie.id_for_label }}"
+        class="form-control"
+        placeholder="Enter favorite movie"
+        value="{{ form.favorite_movie.value|default_if_none:'' }}"
+      />
+    </div>
+
+    <!-- 
+      Hard-coded security question <select> because the choices are fixed and linked directly 
+      to the model's security_question field. This allows manual control over options and 
+      ensures consistency with model validation.
+    -->
+    <div class="mb-3">
+      <label for="id_security_question" class="form-label"
+        >Security Question</label
+      >
+      <select
+        name="security_question"
+        id="id_security_question"
+        class="form-control"
+      >
+        <option
+          value="fav_color"
+          {%
+          if
+          form.instance.security_question="fav_color"
+          %}selected{%
+          endif
+          %}
+        >
+          What is your favorite color?
+        </option>
+        <option
+          value="first_pet"
+          {%
+          if
+          form.instance.security_question="first_pet"
+          %}selected{%
+          endif
+          %}
+        >
+          What was the name of your first pet?
+        </option>
+        <option
+          value="birth_city"
+          {%
+          if
+          form.instance.security_question="birth_city"
+          %}selected{%
+          endif
+          %}
+        >
+          In what city were you born?
+        </option>
+        <option
+          value="best_friend"
+          {%
+          if
+          form.instance.security_question="best_friend"
+          %}selected{%
+          endif
+          %}
+        >
+          What is the first name of your best friend in high school?
+        </option>
+        <option
+          value="mother_maiden"
+          {%
+          if
+          form.instance.security_question="mother_maiden"
+          %}selected{%
+          endif
+          %}
+        >
+          What is your mother’s maiden name?
+        </option>
+      </select>
+    </div>
+
+    <!-- Added placeholders and Bootstrap classes for better UX and consistency -->
+    <div class="mb-3">
+      <label for="{{ form.security_answer.id_for_label }}" class="form-label"
+        >Answer</label
+      >
+      <!-- value="{}"Pre-fills the saved answer if available -->
+      <input
+        type="text"
+        name="{{ form.security_answer.name }}"
+        id="{{ form.security_answer.id_for_label }}"
+        class="form-control"
+        placeholder="Enter answer"
+        value="{{ form.security_answer.value|default_if_none:'' }}"
       />
     </div>
 
     <button type="submit" class="btn btn-primary">Save</button>
+    <a href="{% url 'home.index' %}" class="btn btn-secondary ms-2">Back</a>
   </form>
 </div>
 {% endblock %}

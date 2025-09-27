@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'movies',
     'accounts',
     'cart',
+    "widget_tweaks",
 ]
 
 #Middleware in Django intercepts and manages the request and response processing flow. The listed middleware is provided by Django and handles various aspects of request/response processing, including security, session management, authentication, and more.

@@ -27,3 +27,35 @@ class CustomUserCreationForm(UserCreationForm):
             self.fields[fieldname].widget.attrs.update(
                 {'class': 'form-control'}
             )
+
+
+# ProfileForm: A Django ModelForm for editing user profile information.
+# This form is connected to the Profile model and allows users to update
+# their first name, last name, favorite movie, security question, and security answer.
+# By using ModelForm, we leverage Django's automatic form generation based on model fields,
+# ensuring tight integration between the form and the database model.
+# The widgets dictionary is used to apply the Bootstrap 'form-control' class to each field,
+# providing consistent and attractive styling for all form inputs.
+from django import forms
+from .models import Profile
+
+class ProfileForm(forms.ModelForm):
+    """
+    A form for editing Profile model information.
+    Inherits from forms.ModelForm to automatically generate fields
+    based on the Profile model, ensuring consistency and reducing boilerplate.
+    This form includes fields for first name, last name, favorite movie,
+    security question, and security answer.
+    The widgets parameter applies Bootstrap's 'form-control' CSS class to each field
+    for improved UI/UX.
+    """
+    class Meta:
+        model = Profile  # Connects this form to the Profile model
+        fields = ['first_name', 'last_name', 'favorite_movie', 'security_question', 'security_answer']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'favorite_movie': forms.TextInput(attrs={'class': 'form-control'}),
+            'security_question': forms.Select(attrs={'class': 'form-control'}),
+            'security_answer': forms.TextInput(attrs={'class': 'form-control'}),
+        }

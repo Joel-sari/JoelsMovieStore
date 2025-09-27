@@ -1,7 +1,9 @@
 from django.shortcuts import render
 from django.shortcuts import redirect
+from django.urls import reverse
+from django.contrib import messages
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
-from .forms import CustomUserCreationForm, CustomErrorList
+from .forms import CustomUserCreationForm, CustomErrorList, ProfileForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 
@@ -91,42 +93,107 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def settings(request):
-    # Ensure profile exists
+    updated = False
+    # Ensure the user has a related profile object; if not, create one.
     if hasattr(request.user, 'profile'):
         profile = request.user.profile
-        created = False
     else:
         from .models import Profile
         profile = Profile.objects.create(user=request.user)
-        created = True
 
+    # If the request is a POST, process the submitted form data.
     if request.method == 'POST':
-        profile.security_phrase = request.POST.get("security_phrase")
-        profile.security_answer = request.POST.get("security_answer")
-        profile.save()
-        return redirect('accounts.settings')
+        # Bind the form to POST data and the existing profile instance.
+        form = ProfileForm(request.POST, instance=profile)
+        # Validate the form.
+        if form.is_valid():
+            # Save the updated profile data.
+            form.save()
+            updated = True
+    else:
+        # If GET request, instantiate the form with the current profile instance.
+        form = ProfileForm(instance=profile)
 
-    template_data = {
-        'title': 'Settings',
-        'profile': profile
-    }
-    return render(request, 'accounts/settings.html', {'template_data': template_data})
+    # Render the settings template with the form.
+    return render(request, 'accounts/settings.html', {'form': form, 'updated': updated})
 
 
 # Security phrase verification view
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 
-@login_required
+
+
+#
+# Forgot Password Step 1: This view is the entry point for users who have forgotten their password.
+# It displays a form prompting for a username. On POST, it checks if the username exists.
+# If found, it redirects to the security verification step (step 2). If not, it displays an error.
+def forgot_password(request):
+    """
+    Step 1 of the forgot password flow.
+    Renders a form asking for the user's username. On POST, checks if the user exists,
+    then redirects to the verify_security view if found.
+    """
+    template_data = {}
+    if request.method == "GET":
+        # GET: Show the form to enter username
+        return render(request, "accounts/forgot_password.html", template_data)
+    elif request.method == "POST":
+        # POST: Process the submitted username
+        username = request.POST.get("username")
+        user = None
+        if username:
+            try:
+                # Try to find the user by username
+                user = User.objects.get(username=username)
+            except User.DoesNotExist:
+                user = None
+        if user:
+            # If user exists, redirect to verify_security, passing username as GET param
+            return redirect(f"{reverse('accounts.verify_security')}?username={user.username}")
+        else:
+            # If not found, show error on the same form
+            template_data["error"] = "No user found with that username."
+            return render(request, "accounts/forgot_password.html", template_data)
+
+
+#
+# Forgot Password Step 2: This view handles security question verification.
+# It receives a username (from GET or POST), fetches the user and their profile,
+# and prompts for the security answer. On POST, it checks the answer and either
+# redirects on success or shows an error.
 def verify_security(request):
-    profile = request.user.profile
+    username = request.GET.get("username") or request.POST.get("username")
+    user = None
+    profile = None
+    if username:
+        try:
+            user = User.objects.get(username=username)
+            profile = user.profile
+        except User.DoesNotExist:
+            return redirect("accounts.forgot_password")
+        except Exception:
+            return redirect("accounts.forgot_password")
+    else:
+        return redirect("accounts.forgot_password")
+
     if request.method == "POST":
         answer = request.POST.get("security_answer")
         if answer and answer.strip().lower() == (profile.security_answer or "").strip().lower():
-            from django.contrib import messages
-            messages.success(request, "Security phrase verified successfully.")
+            # ✅ Log the user in before redirect
+            auth_login(request, user)
+            # ✅ Add a success message
+            messages.success(request, "✅ You have been logged in successfully!")
             return redirect('home.index')
         else:
-            from django.contrib import messages
-            messages.error(request, "Incorrect security answer. Please try again.")
-    return render(request, "accounts/verification.html", {"profile": profile})
+            return render(
+                request,
+                "accounts/verify-security.html",
+                {
+                    "profile": profile,
+                    "username": username,
+                    "error": "❌ Incorrect answer. Please try again."
+                }
+            )
+
+    return render(request, "accounts/verify-security.html", {"profile": profile, "username": username})

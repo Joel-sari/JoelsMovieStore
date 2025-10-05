@@ -15,15 +15,19 @@ BASE_DIR: Determines where on your machine the project is situated.
 SECRET_KEY: This is a secret key for a particular Django project. It is used to provide cryptographic signing and should be set to a unique, unpredictable value. In a production environment, it should be replaced with a securely generated key.
 DEBUG: Our site can run in debug mode or not. In debug mode, we get detailed information on errors, which is very useful when we develop our applications. For instance, if we try to run http://localhost:8000/123 in the browser, we will see a Page not found (404) error (see Figure 2.3)
 """
+
+from dotenv import load_dotenv
+load_dotenv()  # load environment variables from .env
 import os
 from pathlib import Path
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
+# Se e https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-4a@i0*raw$n=krc3&ie2^=9#(0@seg9$d7y=pg+6(7=_z511l9'
@@ -120,7 +124,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+LANGUAGE_CODE = 'en-us' 
 
 TIME_ZONE = 'UTC'
 

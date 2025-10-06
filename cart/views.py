@@ -123,6 +123,8 @@ def purchase(request):
         'longitude': order.longitude,
         # Add formatted address for display in confirmation template
         'formatted_address': formatted_address,
+        "MAPS_JS_API_KEY": settings.MAPS_JS_API_KEY, 
+        
     }
     print("DEBUG TEMPLATE DATA:", template_data)
     return render(request, 'cart/purchase.html',

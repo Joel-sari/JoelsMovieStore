@@ -77,7 +77,7 @@
 
             <!-- Google Maps API Script (API key dynamically injected from Django settings for security) -->
             <script
-              src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCdAAItAUZ0-LrZxyK0nhvHgFveVt8ENqE&callback=initMap"
+              src="https://maps.googleapis.com/maps/api/js?key={{ template_data.MAPS_JS_API_KEY }}&callback=initMap"
               async
               defer
             ></script>

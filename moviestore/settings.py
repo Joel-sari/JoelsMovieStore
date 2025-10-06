@@ -126,6 +126,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
 GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
+MAPS_JS_API_KEY = os.getenv("MAPS_JS_API_KEY")
 LANGUAGE_CODE = 'en-us' 
 
 TIME_ZONE = 'UTC'

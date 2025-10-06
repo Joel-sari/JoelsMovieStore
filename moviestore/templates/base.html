@@ -216,6 +216,15 @@
                 >Petitions</a
               >
             </p>
+            {% endif %}{% if user.is_authenticated %}
+            <p>
+              <a
+                class="nav-link"
+                href="{% url 'movies.regional_trends' %}"
+                style="color: white"
+                >Maps</a
+              >
+            </p>
             {% endif %} {% if user.is_authenticated %}
             <p>
               <a

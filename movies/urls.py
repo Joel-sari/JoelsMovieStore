@@ -12,4 +12,6 @@ urlpatterns = [
     path("petition/<int:id>/", views.petition_detail, name="movies.petition_detail"),
     path("petition/<int:petition_id>/vote/", views.vote_petition, name="movies.vote_petition"),
 
+    # Route for displaying aggregated regional purchase data on a map
+    path("regional-trends/", views.regional_trends, name="movies.regional_trends"),
 ]

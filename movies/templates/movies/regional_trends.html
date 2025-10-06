@@ -1,0 +1,207 @@
+{% extends 'base.html' %} {% load static %} {% block content %}
+<!-- 
+  This template displays the "Regional Movie Purchase Trends" map.
+  It extends the base.html layout to ensure consistent UI (header, footer, theme, etc.)
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Regional Movie Purchase Trends</title>
+
+    <style>
+      /* Page Layout and Styling */
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        color: #fff;
+      }
+
+      .content-container {
+        max-width: 1200px;
+        margin: 50px auto;
+        text-align: center;
+        background: rgba(0, 0, 0, 0.6);
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 0 15px rgba(255, 0, 150, 0.4);
+      }
+
+      h1 {
+        font-size: 2em;
+        color: #fff;
+        margin-bottom: 20px;
+        text-shadow: 0px 0px 8px rgba(255, 0, 255, 0.5);
+      }
+
+      /* 
+        Map container styling — increased size for prominence and immersive experience.
+        These changes make the map more visible and better integrated with the main UI.
+      */
+      #map {
+        height: 800px;
+        width: 100%;
+        max-width: 95%;
+        border-radius: 10px;
+        margin: 40px auto;
+        box-shadow: 0 0 10px rgba(255, 0, 255, 0.2);
+      }
+
+      .no-data-message {
+        color: #ccc;
+        font-size: 1.2em;
+        margin-top: 40px;
+        text-align: center;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="content-container">
+      <!-- Title for the page -->
+      <h1>Regional Movie Purchase Trends</h1>
+
+      {% if map_data and map_data|length > 0 %}
+      <!-- 
+        Map container: The Google Map is loaded dynamically here.
+        The data comes from Django via the "map_data" context variable.
+      -->
+      <div id="map"></div>
+
+      <!-- 
+        Safely embed JSON data from Django into JavaScript.
+        json_script ensures it’s escaped properly to prevent XSS.
+      -->
+      {{ map_data|json_script:"map-data" }}
+
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          // Parse the map data safely from the script tag
+          const mapData = JSON.parse(
+            document.getElementById("map-data").textContent
+          );
+
+          // Initialize Google Map
+          function initMap() {
+            if (!mapData || mapData.length === 0) {
+              console.warn("No map data available to render.");
+              return;
+            }
+
+            // Default center point (fallback = geographic center of the U.S.)
+            const defaultCenter = {
+              lat: mapData[0].latitude || 39.8283,
+              lng: mapData[0].longitude || -98.5795,
+            };
+
+            // Create map instance and attach it to the #map div
+            const map = new google.maps.Map(document.getElementById("map"), {
+              zoom: 4,
+              center: defaultCenter,
+              styles: [
+                {
+                  elementType: "geometry",
+                  stylers: [{ color: "#1d2c4d" }],
+                },
+                {
+                  elementType: "labels.text.fill",
+                  stylers: [{ color: "#8ec3b9" }],
+                },
+                {
+                  elementType: "labels.text.stroke",
+                  stylers: [{ color: "#1a3646" }],
+                },
+                {
+                  featureType: "administrative.country",
+                  elementType: "geometry.stroke",
+                  stylers: [{ color: "#4b6878" }],
+                },
+                {
+                  featureType: "water",
+                  elementType: "geometry",
+                  stylers: [{ color: "#0e1626" }],
+                },
+              ],
+            });
+
+            // Create LatLng bounds to fit all data points dynamically
+            const bounds = new google.maps.LatLngBounds();
+
+            // Add one marker per region (city/state)
+            mapData.forEach((item) => {
+              const position = { lat: item.latitude, lng: item.longitude };
+
+              // Marker creation with movie info
+              const marker = new google.maps.Marker({
+                position,
+                map,
+                title: `${item.movie_title} (${item.total_purchases} purchases)`,
+                icon: {
+                  url: "https://maps.google.com/mapfiles/ms/icons/purple-dot.png",
+                  // Scale the icon to approximately twice the default size
+                  scaledSize: new google.maps.Size(64, 64), // Default is 32x32, so 64x64 doubles it
+                },
+              });
+
+              // Info window that appears when clicking on a marker
+              const infoWindow = new google.maps.InfoWindow({
+                content: `
+                  <div style="
+                    background: #1e1e2f;
+                    color: #fff;
+                    font-family: 'Arial', sans-serif;
+                    padding: 10px 15px;
+                    border-radius: 10px;
+                    box-shadow: 0 0 8px rgba(255, 0, 255, 0.4);
+                    text-align: center;
+                    min-width: 150px;
+                  ">
+                    <h3 style="margin: 0; font-size: 1.1em; color: #ff66ff;">${
+                      item.movie_title
+                    }</h3>
+                    <p style="margin: 5px 0 0; font-size: 0.9em;">${
+                      item.city
+                    }, ${item.state}</p>
+                    <p style="margin: 5px 0 0; font-size: 0.85em; color: #ccc;">
+                      <em>${item.total_purchases} purchase${
+                  item.total_purchases > 1 ? "s" : ""
+                }</em>
+                    </p>
+                  </div>
+                `,
+              });
+
+              // Click event: opens info window when marker is clicked
+              marker.addListener("click", () => infoWindow.open(map, marker));
+
+              // Extend map bounds for each marker
+              bounds.extend(position);
+            });
+
+            // Fit map to display all markers optimally
+            map.fitBounds(bounds);
+          }
+
+          // Make initMap available globally for Google Maps callback
+          window.initMap = initMap;
+        });
+      </script>
+
+      <!-- Load Google Maps API with callback to initMap -->
+      <script
+        async
+        defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCdAAItAUZ0-LrZxyK0nhvHgFveVt8ENqE&callback=initMap"
+      ></script>
+
+      {% else %}
+      <!-- If there’s no data to show -->
+      <p class="no-data-message">
+        No regional purchase data available to display on the map.
+      </p>
+      {% endif %}
+    </div>
+  </body>
+</html>
+{% endblock %}

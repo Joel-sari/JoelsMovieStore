@@ -154,3 +154,58 @@ def petition_detail(request, id):
         "user_vote": user_vote,
     }
     return render(request, "movies/petition_detail.html", context)
+
+@login_required
+def regional_trends(request):
+    """
+    Display a map showing trending movies by region (city/state).
+
+    This view aggregates all purchased items (linked to orders) and groups them
+    by region (based on the Order's city/state fields). The result shows which
+    movies are most popular in each region. Each marker on the map represents
+    a movie’s popularity in that area.
+    """
+
+    # Import Item model from cart to access movie and order location data
+    from cart.models import Item
+
+    # Retrieve all items where the associated order has valid coordinates
+    # This ensures we only plot purchases that include geographic data.
+    items_with_location = Item.objects.filter(
+        order__latitude__isnull=False,
+        order__longitude__isnull=False
+    )
+
+    # Group by region (city/state) and movie title, counting total purchases
+    # per combination using annotate(Count(...)).
+    from django.db.models import Count
+    regional_data = (
+        items_with_location
+        .values(
+            'order__city',
+            'order__state',
+            'movie__name',
+            'order__latitude',
+            'order__longitude'
+        )
+        .annotate(total_purchases=Count('id'))
+        .order_by('-total_purchases')
+    )
+
+    # Prepare structured data for the frontend map
+    map_data = []
+    for entry in regional_data:
+        map_data.append({
+            "city": entry.get("order__city"),
+            "state": entry.get("order__state"),
+            "movie_title": entry.get("movie__name"),
+            "latitude": entry.get("order__latitude"),
+            "longitude": entry.get("order__longitude"),
+            "total_purchases": entry.get("total_purchases"),
+        })
+
+    # Render the “Regional Trends” page with the prepared map data
+    return render(request, "movies/regional_trends.html", {
+        "title": "Local Popularity Map",
+        "map_data": map_data
+    })

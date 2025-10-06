@@ -109,6 +109,13 @@
               style="color: white"
               >Petitions</a
             >
+            {% endif %} {% if user.is_authenticated %}
+            <a
+              class="nav-link"
+              href="{% url 'movies.regional_trends' %}"
+              style="color: white"
+              >Maps</a
+            >
             {% endif %}
 
             <div class="vr bg-white mx-2 d-none d-lg-block"></div>

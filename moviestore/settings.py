@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'accounts',
     'cart',
     "widget_tweaks",
+    "moviemaps",
 ]
 
 #Middleware in Django intercepts and manages the request and response processing flow. The listed middleware is provided by Django and handles various aspects of request/response processing, including security, session management, authentication, and more.
@@ -124,7 +125,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
 LANGUAGE_CODE = 'en-us' 
 
 TIME_ZONE = 'UTC'

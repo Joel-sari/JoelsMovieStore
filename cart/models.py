@@ -15,6 +15,23 @@ class Order(models.Model):
 
     #user: This is a foreign key relationship to the User model, which establishes a many-to-one relationship between orders and users. It means that each order is associated with a single user, and each user can have multiple orders. on_delete=models.CASCADE specifies that if the related user is deleted, the associated orders will also be deleted.
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    #city: Optional CharField to store the city of the order for regional map aggregation and visualization purposes.
+    city = models.CharField(max_length=100, blank=True, null=True)
+
+    #state: Optional CharField to store the state or province of the order for regional map aggregation and visualization purposes.
+    state = models.CharField(max_length=100, blank=True, null=True)
+
+    #country: Optional CharField to store the country of the order for regional map aggregation and visualization purposes.
+    country = models.CharField(max_length=100, blank=True, null=True)
+
+    #latitude: Optional FloatField to store the latitude coordinate for Google Maps or other mapping API integration.
+    latitude = models.FloatField(blank=True, null=True)
+
+    #longitude: Optional FloatField to store the longitude coordinate for Google Maps or other mapping API integration.
+    longitude = models.FloatField(blank=True, null=True)
+
+
     def __str__(self):
         return str(self.id) + ' - ' + self.user.username
     

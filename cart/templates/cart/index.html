@@ -40,9 +40,9 @@
     transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
   }
   .btn-gradient-purchase {
-    background: linear-gradient(90deg, #6a11cb);
+    background: linear-gradient(90deg, #b5179e);
     color: #fff !important;
-    border: none !important;
+    border: black;
     border-radius: 10px;
     font-weight: 600;
     box-shadow: 0 6px 18px rgba(106, 17, 203, 0.35);
@@ -103,12 +103,87 @@
         </tbody>
       </table>
     </div>
+
     <!-- Total box under the table -->
     <div class="row mt-2">
       <div class="col text-start">
         <span class="total-box"
           ><b>Total to pay:</b> ${{ template_data.cart_total }}</span
         >
+      </div>
+    </div>
+
+    <!--
+      Address Form Section
+      Collects city, state, and country from the user before purchase
+    -->
+    <div class="row mt-3">
+      <div class="col-12 col-md-8 col-lg-6 mx-auto">
+        <form
+          method="POST"
+          action="{% url 'cart.purchase' %}"
+          style="
+            background: linear-gradient(90deg, #b5179e 0%, #6a11cb 100%);
+            border-radius: 15px;
+            padding: 22px 24px;
+            box-shadow: 0 6px 18px rgba(106, 17, 203, 0.25);
+            color: #fff;
+          "
+        >
+          {% csrf_token %}
+          <h5 class="mb-3" style="color: #fff">Shipping Information</h5>
+          <div class="mb-3">
+            <label for="city" class="form-label" style="color: #fff"
+              >City <span style="color: #ff4d6d">*</span></label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="city"
+              name="city"
+              placeholder="Enter your city"
+              required
+              style="border-radius: 8px; border: none"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="state" class="form-label" style="color: #fff"
+              >State</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="state"
+              name="state"
+              placeholder="Enter your state (optional)"
+              style="border-radius: 8px; border: none"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="country" class="form-label" style="color: #fff"
+              >Country <span style="color: #ff4d6d">*</span></label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="country"
+              name="country"
+              placeholder="Enter your country"
+              required
+              style="border-radius: 8px; border: none"
+            />
+          </div>
+          <!-- Submit button inside the form -->
+          <div class="text-end mt-3">
+            <button
+              type="submit"
+              class="btn btn-gradient-purchase"
+              style="min-width: 180px"
+            >
+              Purchase
+            </button>
+          </div>
+        </form>
       </div>
     </div>
 
@@ -119,9 +194,6 @@
           >Add more movies</a
         >
         {% if template_data.movies_in_cart|length > 0 %}
-        <a href="{% url 'cart.purchase' %}" class="btn btn-gradient-purchase"
-          >Purchase</a
-        >
         <a href="{% url 'cart.clear' %}"
           ><button
             class="btn action-btn"

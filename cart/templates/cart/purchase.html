@@ -52,9 +52,91 @@
               Congratulations, your purchase has been completed.<br />
               Your order number is: <b>#{{ template_data.order_id }}</b>
             </p>
+            {% if template_data.formatted_address %}
+            <p>
+              <strong>Location:</strong> {{ template_data.formatted_address }}
+            </p>
+            {% endif %}
             <a href="{% url 'accounts.orders' %}" class="btn-gradient"
               >View My Orders</a
             >
+
+            <!-- 🗺️ Google Maps Integration -->
+            <div class="mt-4">
+              <h4>Your Region on the Map</h4>
+              <div
+                id="map"
+                style="
+                  height: 400px;
+                  width: 100%;
+                  border-radius: 12px;
+                  margin-top: 12px;
+                "
+              ></div>
+            </div>
+
+            <!-- Google Maps API Script (API key dynamically injected from Django settings for security) -->
+            <script
+              src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCdAAItAUZ0-LrZxyK0nhvHgFveVt8ENqE&callback=initMap"
+              async
+              defer
+            ></script>
+            <script>
+              // Initialize Google Map centered on user's order location
+              function initMap() {
+                console.log("✅ initMap called successfully!");
+
+                // Safely parse Django-provided values
+                const latRaw = "{{ template_data.latitude|default:'' }}";
+                const lngRaw = "{{ template_data.longitude|default:'' }}";
+
+                const lat = parseFloat(latRaw);
+                const lng = parseFloat(lngRaw);
+                console.log("🧭 Parsed coordinates:", lat, lng);
+
+                // Only treat missing/NaN as invalid
+                if (isNaN(lat) || isNaN(lng)) {
+                  document.getElementById("map").innerHTML =
+                    "<p style='color:#ccc; margin-top:20px;'>Location unavailable for this order.</p>";
+                  return;
+                }
+
+                const position = { lat, lng };
+                console.log("📍 Using position:", position);
+
+                // Dynamically choose zoom level based on region scale
+                let zoomLevel = 10; // Default regional
+                if (lat > 40 || lat < -40) zoomLevel = 11; // Slightly closer for temperate regions
+                if (Math.abs(lat) < 20) zoomLevel = 8; // Wider zoom for equatorial cities
+
+                // Create map
+                const map = new google.maps.Map(
+                  document.getElementById("map"),
+                  {
+                    zoom: zoomLevel,
+                    center: position,
+                  }
+                );
+
+                // Add a marker at user's location
+                if (
+                  google.maps.marker &&
+                  google.maps.marker.AdvancedMarkerElement
+                ) {
+                  new google.maps.marker.AdvancedMarkerElement({
+                    map,
+                    position,
+                    title: "Your Purchase Location",
+                  });
+                } else {
+                  new google.maps.Marker({
+                    position,
+                    map,
+                    title: "Your Purchase Location",
+                  });
+                }
+              }
+            </script>
           </div>
         </div>
       </div>

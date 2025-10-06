@@ -26,6 +26,7 @@ urlpatterns = [
     path('movies/', include('movies.urls')),
     path('accounts/', include('accounts.urls')),
     path('cart/', include('cart.urls')),
+    path('moviemaps/', include('moviemaps.urls')),
 
 ]
 #With this, you can serve the media files stored in the MEDIA_ROOT directory when the MEDIA_URL URL prefix is accessed.

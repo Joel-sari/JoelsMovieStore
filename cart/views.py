@@ -2,6 +2,8 @@ from django.shortcuts import render
 from django.shortcuts import get_object_or_404, redirect
 from .models import Order, Item
 from django.contrib.auth.decorators import login_required
+import googlemaps
+from django.conf import settings
 
 
 
@@ -58,10 +60,41 @@ def purchase(request):
         return redirect('cart.index')
     movies_in_cart = Movie.objects.filter(id__in=movie_ids)
     cart_total = calculate_cart_total(cart, movies_in_cart)
+
+    # Extract shipping details from the POST data submitted by the user
+    city = request.POST.get('city', '')
+    state = request.POST.get('state', '')
+    country = request.POST.get('country', '')
+
+    # Initialize Google Maps client with API key from settings
+    gmaps = googlemaps.Client(key=settings.GOOGLE_MAPS_API_KEY)
+
+    # Combine city, state, and country into a full address string
+    full_address = ', '.join(filter(None, [city, state, country]))
+
+    # Geocode the full address to get latitude and longitude
+    print("DEBUG full_address:", full_address)
+    geocode_result = gmaps.geocode(full_address)
+    print("DEBUG geocode_result:", geocode_result)
+
+    # Create a new Order object and assign the user, total, and shipping details
     order = Order()
     order.user = request.user
     order.total = cart_total
+    order.city = city  # Assign the city from the shipping form to the order
+    order.state = state  # Assign the state from the shipping form to the order
+    order.country = country  # Assign the country from the shipping form to the order
+
+    # If geocoding was successful, extract latitude and longitude and save to order
+    if geocode_result:
+        location = geocode_result[0]['geometry']['location']
+        order.latitude = location.get('lat')
+        order.longitude = location.get('lng')
+        # Also capture the Google-verified formatted address for display
+        formatted_address = geocode_result[0].get('formatted_address', '')
+
     order.save()
+    print("DEBUG TEMPLATE LAT/LNG:", order.latitude, order.longitude)
 
     """If the cart is not empty, we continue the purchase process.
     We retrieve movie objects from the database based on the IDs stored in  the cart using Movie.objects.filter(id__in=movie_ids.
@@ -76,16 +109,23 @@ def purchase(request):
         item.order = order
         item.quantity = cart[str(movie.id)]
         item.save()
+        
 
     """Lets analyze this piece of code:
     After the purchase is completed, we clear the cart in the users session by setting request.session['cart'] to an empty dictionary.
     We prepare the data to be sent to the purchase confirmation template. This data includes the title of the page and the ID of the created order.
     Finally, we render the cart/purchase.html template."""
     request.session['cart'] = {}
-    template_data = {}
-    template_data['title'] = 'Purchase confirmation'
-    template_data['order_id'] = order.id
+    template_data = {
+        'title': 'Purchase confirmation',
+        'order_id': order.id,
+        'latitude': order.latitude,
+        'longitude': order.longitude,
+        # Add formatted address for display in confirmation template
+        'formatted_address': formatted_address,
+    }
+    print("DEBUG TEMPLATE DATA:", template_data)
     return render(request, 'cart/purchase.html',
         {'template_data': template_data})
 
-
+    

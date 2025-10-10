@@ -2,8 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Movie, Review, Petition, PetitionVote
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-
-
+from django.conf import settings
 """Now, it will retrieve all movies if the search parameter is not sent in the current request, or it will retrieve specific movies based on the search parameter. Let’s explain the previous code."""
 def index(request):
     #We retrieve the value of the search parameter by using the request.GET.get('search') method and assign that value to the search_term variable. Here, we capture the search input value submitted through the form defined in the previous section.
@@ -185,8 +184,9 @@ def regional_trends(request):
             'order__city',
             'order__state',
             'movie__name',
+            'movie__image',
             'order__latitude',
-            'order__longitude'
+            'order__longitude',
         )
         .annotate(total_purchases=Count('id'))
         .order_by('-total_purchases')
@@ -195,6 +195,16 @@ def regional_trends(request):
     # Prepare structured data for the frontend map
     map_data = []
     for entry in regional_data:
+        #  Step 1: Get relative image path from the Movie model
+        image_path = entry.get("movie__image")
+
+        # Step 2: Build a full accessible URL
+        # Example: "/media/movie_images/ironman.jpg"
+        # Use settings.MEDIA_URL (which should equal '/media/')
+        full_image_url = (
+            settings.MEDIA_URL + image_path
+            if image_path
+            else None)
         map_data.append({
             "city": entry.get("order__city"),
             "state": entry.get("order__state"),
@@ -202,10 +212,12 @@ def regional_trends(request):
             "latitude": entry.get("order__latitude"),
             "longitude": entry.get("order__longitude"),
             "total_purchases": entry.get("total_purchases"),
+            "poster_url": full_image_url,  # ✅ pass the image URL
         })
 
     # Render the “Regional Trends” page with the prepared map data
     return render(request, "movies/regional_trends.html", {
         "title": "Local Popularity Map",
-        "map_data": map_data
+        "map_data": map_data,
+        "MAPS_JS_API_KEY": settings.MAPS_JS_API_KEY,
     })

@@ -1,23 +1,16 @@
 {% extends 'base.html' %} {% load static %} {% block content %}
-<!-- 
-  This template displays the "Regional Movie Purchase Trends" map.
-  It extends the base.html layout to ensure consistent UI (header, footer, theme, etc.)
--->
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Regional Movie Purchase Trends</title>
-
+    <title>Regional Trends Map</title>
     <style>
-      /* Page Layout and Styling */
       body {
         font-family: Arial, sans-serif;
         margin: 0;
         padding: 0;
         color: #fff;
       }
-
       .content-container {
         max-width: 1200px;
         margin: 50px auto;
@@ -27,18 +20,9 @@
         border-radius: 15px;
         box-shadow: 0 0 15px rgba(255, 0, 150, 0.4);
       }
-
-      h1 {
-        font-size: 2em;
+      h2 {
         color: #fff;
-        margin-bottom: 20px;
-        text-shadow: 0px 0px 8px rgba(255, 0, 255, 0.5);
       }
-
-      /* 
-        Map container styling — increased size for prominence and immersive experience.
-        These changes make the map more visible and better integrated with the main UI.
-      */
       #map {
         height: 800px;
         width: 100%;
@@ -47,63 +31,104 @@
         margin: 40px auto;
         box-shadow: 0 0 10px rgba(255, 0, 255, 0.2);
       }
-
-      .no-data-message {
-        color: #ccc;
-        font-size: 1.2em;
-        margin-top: 40px;
-        text-align: center;
+      .gm-style img[src$="custommappin.png"] {
+        filter: brightness(1.8) contrast(1.2)
+          drop-shadow(0 0 3px rgba(255, 0, 255, 0.5));
+        transition: filter 0.3s ease;
+      }
+      .gm-style img[src$="custommappin.png"]:hover {
+        filter: brightness(2.2) contrast(1.4)
+          drop-shadow(0 0 6px rgba(255, 0, 255, 0.7));
       }
     </style>
   </head>
-
   <body>
-    <div class="content-container">
-      <!-- Title for the page -->
-      <h1>Regional Movie Purchase Trends</h1>
+    <div class="p-3">
+      <div class="container">
+        <div class="row mt-3">
+          <div class="col">
+            <h2>Regional Trends Map</h2>
+            <hr />
+            <p class="text-light mb-0" style="font-size: 1rem">
+              Explore popular movie purchase trends across your region and
+              nearby areas in real time.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
 
+    <div class="content-container">
       {% if map_data and map_data|length > 0 %}
-      <!-- 
-        Map container: The Google Map is loaded dynamically here.
-        The data comes from Django via the "map_data" context variable.
-      -->
+      <!-- Dynamic location info -->
+      <p id="dynamic-location-info" class="text-light mt-2"></p>
+
+      <!-- Map container -->
       <div id="map"></div>
 
-      <!-- 
-        Safely embed JSON data from Django into JavaScript.
-        json_script ensures it’s escaped properly to prevent XSS.
-      -->
+      <!-- Buttons -->
+      <div class="text-center mt-3 ml-3">
+        <button
+          id="request-location"
+          class="btn btn-gradient"
+          style="
+            background: linear-gradient(90deg, #ff00cc, #7928ca);
+            color: #fff;
+            font-weight: 600;
+            border: none;
+            border-radius: 25px;
+            padding: 10px 22px;
+            font-size: 0.95em;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 0, 255, 0.4);
+            transition: all 0.3s ease;
+          "
+        >
+          Share My Location
+        </button>
+
+        <button
+          id="zoom-my-location"
+          class="btn btn-gradient"
+          style="
+            background: linear-gradient(90deg, #ff00cc, #7928ca);
+            color: #fff;
+            font-weight: 600;
+            border: none;
+            border-radius: 25px;
+            padding: 10px 22px;
+            font-size: 0.95em;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 0, 255, 0.4);
+            transition: all 0.3s ease;
+          "
+        >
+          Zoom to My Location
+        </button>
+      </div>
+
+      <!-- Safely embed map data -->
       {{ map_data|json_script:"map-data" }}
 
       <script>
+        // Global map reference
+        window.map = null;
+        window.userLocation = null;
+
         document.addEventListener("DOMContentLoaded", function () {
-          // Parse the map data safely from the script tag
           const mapData = JSON.parse(
             document.getElementById("map-data").textContent
           );
 
-          // Initialize Google Map
-          function initMap() {
-            if (!mapData || mapData.length === 0) {
-              console.warn("No map data available to render.");
-              return;
-            }
+          function initMap(center) {
+            const defaultCenter = { lat: 39.8283, lng: -98.5795 };
+            const mapCenter = center || defaultCenter;
 
-            // Default center point (fallback = geographic center of the U.S.)
-            const defaultCenter = {
-              lat: mapData[0].latitude || 39.8283,
-              lng: mapData[0].longitude || -98.5795,
-            };
-
-            // Create map instance and attach it to the #map div
-            const map = new google.maps.Map(document.getElementById("map"), {
+            window.map = new google.maps.Map(document.getElementById("map"), {
               zoom: 4,
-              center: defaultCenter,
+              center: mapCenter,
               styles: [
-                {
-                  elementType: "geometry",
-                  stylers: [{ color: "#1d2c4d" }],
-                },
+                { elementType: "geometry", stylers: [{ color: "#1d2c4d" }] },
                 {
                   elementType: "labels.text.fill",
                   stylers: [{ color: "#8ec3b9" }],
@@ -113,11 +138,6 @@
                   stylers: [{ color: "#1a3646" }],
                 },
                 {
-                  featureType: "administrative.country",
-                  elementType: "geometry.stroke",
-                  stylers: [{ color: "#4b6878" }],
-                },
-                {
                   featureType: "water",
                   elementType: "geometry",
                   stylers: [{ color: "#0e1626" }],
@@ -125,78 +145,156 @@
               ],
             });
 
-            // Create LatLng bounds to fit all data points dynamically
             const bounds = new google.maps.LatLngBounds();
+            let openInfoWindow = null;
 
-            // Add one marker per region (city/state)
             mapData.forEach((item) => {
               const position = { lat: item.latitude, lng: item.longitude };
-
-              // Marker creation with movie info
               const marker = new google.maps.Marker({
                 position,
-                map,
+                map: window.map,
                 title: `${item.movie_title} (${item.total_purchases} purchases)`,
                 icon: {
-                  url: "https://maps.google.com/mapfiles/ms/icons/purple-dot.png",
-                  // Scale the icon to approximately twice the default size
-                  scaledSize: new google.maps.Size(64, 64), // Default is 32x32, so 64x64 doubles it
+                  url: "/static/img/custommappin.png",
+                  scaledSize: new google.maps.Size(50, 50),
                 },
               });
 
-              // Info window that appears when clicking on a marker
               const infoWindow = new google.maps.InfoWindow({
-                content: `
-                  <div style="
-                    background: #1e1e2f;
-                    color: #fff;
-                    font-family: 'Arial', sans-serif;
-                    padding: 10px 15px;
-                    border-radius: 10px;
-                    box-shadow: 0 0 8px rgba(255, 0, 255, 0.4);
-                    text-align: center;
-                    min-width: 150px;
-                  ">
-                    <h3 style="margin: 0; font-size: 1.1em; color: #ff66ff;">${
-                      item.movie_title
-                    }</h3>
-                    <p style="margin: 5px 0 0; font-size: 0.9em;">${
-                      item.city
-                    }, ${item.state}</p>
-                    <p style="margin: 5px 0 0; font-size: 0.85em; color: #ccc;">
-                      <em>${item.total_purchases} purchase${
-                  item.total_purchases > 1 ? "s" : ""
-                }</em>
-                    </p>
-                  </div>
-                `,
+                content: `<div style="background: #1d2c4d; color: #fff; padding: 15px; border-radius: 10px;">
+                            ${item.movie_title}
+                          </div>`,
               });
 
-              // Click event: opens info window when marker is clicked
-              marker.addListener("click", () => infoWindow.open(map, marker));
+              marker.addListener("click", () => {
+                if (openInfoWindow) openInfoWindow.close();
+                infoWindow.open(window.map, marker);
+                openInfoWindow = infoWindow;
+              });
 
-              // Extend map bounds for each marker
               bounds.extend(position);
             });
 
-            // Fit map to display all markers optimally
-            map.fitBounds(bounds);
+            if (mapData.length > 0) window.map.fitBounds(bounds);
           }
 
-          // Make initMap available globally for Google Maps callback
+          // Geolocation logic
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                const userLocation = {
+                  lat: position.coords.latitude,
+                  lng: position.coords.longitude,
+                };
+                window.userLocation = userLocation;
+
+                const geocoder = new google.maps.Geocoder();
+                geocoder.geocode(
+                  { location: userLocation },
+                  (results, status) => {
+                    const infoEl = document.getElementById(
+                      "dynamic-location-info"
+                    );
+                    if (infoEl) {
+                      if (status === "OK" && results[0]) {
+                        const place =
+                          results[0].formatted_address.split(",")[0];
+                        infoEl.textContent = `🎬 Exploring trending movies around ${place}!`;
+                      } else {
+                        infoEl.textContent =
+                          "🎬 Exploring trending movies near your area!";
+                      }
+                    }
+                  }
+                );
+
+                initMap(userLocation);
+
+                const circle = new google.maps.Circle({
+                  strokeColor: "rgba(138, 43, 226, 0.8)",
+                  strokeOpacity: 0.9,
+                  strokeWeight: 1.5,
+                  fillColor: "rgba(128, 0, 128, 0.25)",
+                  fillOpacity: 0.25,
+                  map: window.map,
+                  center: userLocation,
+                  radius: 150000,
+                });
+
+                let t = 0;
+                function smoothPulse() {
+                  t += 0.03;
+                  const scale = 1 + 0.05 * Math.sin(t);
+                  circle.setRadius(150000 * scale);
+                  const opacity = 0.25 + (0.05 * (1 + Math.sin(t))) / 2;
+                  circle.setOptions({ fillOpacity: opacity });
+                  requestAnimationFrame(smoothPulse);
+                }
+                smoothPulse();
+              },
+              () => initMap()
+            );
+          } else initMap();
+
           window.initMap = initMap;
+        });
+
+        // Share My Location button
+        document.addEventListener("DOMContentLoaded", function () {
+          const locationBtn = document.getElementById("request-location");
+          if (locationBtn) {
+            locationBtn.addEventListener("click", () => {
+              if (localStorage.getItem("locationShared") === "true") {
+                alert("✅ You've already shared your location.");
+                return;
+              }
+              alert("📍 Getting your location... please wait.");
+              if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                  (pos) => {
+                    localStorage.setItem("locationShared", "true");
+                    alert("✅ Location successfully shared!");
+                    window.location.reload();
+                  },
+                  (err) =>
+                    alert(
+                      "⚠️ Unable to retrieve location. Please check permissions."
+                    ),
+                  { enableHighAccuracy: true, timeout: 7000, maximumAge: 60000 }
+                );
+              } else alert("❌ Geolocation not supported.");
+            });
+          }
+        });
+
+        // Zoom to My Location button
+        document.addEventListener("DOMContentLoaded", function () {
+          const zoomBtn = document.getElementById("zoom-my-location");
+          if (zoomBtn) {
+            zoomBtn.addEventListener("click", () => {
+              if (window.map && window.userLocation) {
+                let currentZoom = window.map.getZoom();
+                const targetZoom = 11;
+                const zoomInterval = setInterval(() => {
+                  if (currentZoom < targetZoom) {
+                    currentZoom += 0.5;
+                    window.map.setZoom(currentZoom);
+                  } else clearInterval(zoomInterval);
+                }, 100);
+                window.map.panTo(window.userLocation);
+              } else alert("⚠️ Please share your location first!");
+            });
+          }
         });
       </script>
 
-      <!-- Load Google Maps API with callback to initMap -->
       <script
         async
         defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCdAAItAUZ0-LrZxyK0nhvHgFveVt8ENqE&callback=initMap"
+        src="https://maps.googleapis.com/maps/api/js?key={{ MAPS_JS_API_KEY }}&callback=initMap"
       ></script>
 
       {% else %}
-      <!-- If there’s no data to show -->
       <p class="no-data-message">
         No regional purchase data available to display on the map.
       </p>

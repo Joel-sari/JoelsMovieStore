@@ -16,10 +16,11 @@ SECRET_KEY: This is a secret key for a particular Django project. It is used to 
 DEBUG: Our site can run in debug mode or not. In debug mode, we get detailed information on errors, which is very useful when we develop our applications. For instance, if we try to run http://localhost:8000/123 in the browser, we will see a Page not found (404) error (see Figure 2.3)
 """
 
-from dotenv import load_dotenv
-load_dotenv(os.path.expanduser("~/.env"))  # load environment variables from .env
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

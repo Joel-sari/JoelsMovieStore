@@ -138,16 +138,22 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+STATIC_URL = 'static/'
+
 STATICFILES_DIRS = [
-    BASE_DIR / 'moviestore/static/',
+    os.path.join(BASE_DIR, 'moviestore/static'),
 ]
+
+#Add this line (this is what Django needs for deployment)
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 # This variable specifies the URL prefix that will be used to serve media files from the web server. In this code, it’s set to '/media/', meaning that media files uploaded to the Django application will be accessible via URLs starting with /media/. For example, if you upload an image named example.jpg, it might be accessible at a URL like http://localhost:8000/media/example.jpg.
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 

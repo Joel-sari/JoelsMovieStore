@@ -3,6 +3,7 @@ from .models import Movie, Review, Petition, PetitionVote
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.conf import settings
+from django.db.models import Avg
 """Now, it will retrieve all movies if the search parameter is not sent in the current request, or it will retrieve specific movies based on the search parameter. Let’s explain the previous code."""
 def index(request):
     #We retrieve the value of the search parameter by using the request.GET.get('search') method and assign that value to the search_term variable. Here, we capture the search input value submitted through the form defined in the previous section.
@@ -31,18 +32,38 @@ def show(request, id):
     reviews = Review.objects.filter(movie=movie)
     template_data = {}
 
+    # ✅ Calculate the average rating (using Django ORM aggregation)
+    avg_rating = reviews.aggregate(Avg('rating'))['rating__avg']
+    avg_rating = round(avg_rating, 1) if avg_rating else 0  # round to one decimal
 
     # We now access movie.name as an OBJECT ATTRIBUTE. Previously, we accessed the name as a key (movie['name']), since the dummy data variable stored dictionaries.
     template_data['title'] = movie.name
     template_data['movie'] = movie
     template_data['reviews'] = reviews
-
+    template_data['avg_rating']= avg_rating  # ✅ pass to template
+    user_review = None
+    if request.user.is_authenticated:
+        user_review = Review.objects.filter(user=request.user, movie=movie).first()
+        template_data['user_review_exists'] = bool(user_review)
+        template_data['user_review_id'] = user_review.id if user_review else None
     return render(request, 'movies/show.html',
                   {'template_data': template_data})
 
  #We import login_required, which is used to verify that only logged users can access the create_review function. If a guest user attempts to access this function via the corresponding URL, they will be redirected to the login page.
 @login_required
 def create_review(request, id):
+    
+    #Allows a user to create a review for a specific movie.
+    #Each user can only leave ONE review per movie.
+    #If a review already exists, the user is redirected to the edit page.
+    movie = get_object_or_404(Movie, id=id)
+    user = request.user
+    #  Step 1: Check if the user already reviewed this movie
+    existing_review = Review.objects.filter(user=user, movie=movie).first()
+    if existing_review:
+        messages.warning(request, "You’ve already reviewed this movie! Redirecting you to edit your review.")
+        return redirect('movies.edit_review', id=movie.id, review_id=existing_review.id)
+    
     #The create_review takes two arguments: the request that contains information about the HTTP request, and the id, which represents the ID of the movie for which a review is being created. 
     # Then, we check whether the request method is POST and the comment field in the request’s POST data is not empty. If that is TRUE, the following happens:
     if request.method == 'POST' and request.POST['comment']!= '':
@@ -56,6 +77,15 @@ def create_review(request, id):
         review.comment = request.POST['comment']
         review.movie = movie
         review.user = request.user
+        # Retrieve and validate rating
+        rating_str = request.POST.get('rating')
+        try:
+            rating = int(rating_str)
+            if rating < 1 or rating > 5:
+                rating = 1
+        except (TypeError, ValueError):
+            rating = 1
+        review.rating = rating
         review.save()
         return redirect('movies.show', id=id)
     else:
@@ -80,6 +110,15 @@ def edit_review(request, id, review_id):
     elif request.method == 'POST' and request.POST['comment'] != '':
         review = Review.objects.get(id=review_id)
         review.comment = request.POST['comment']
+        # Retrieve and validate rating
+        rating_str = request.POST.get('rating')
+        try:
+            rating = int(rating_str)
+            if rating < 1 or rating > 5:
+                rating = 1
+        except (TypeError, ValueError):
+            rating = 1
+        review.rating = rating
         review.save()
         return redirect('movies.show', id=id)
     else:

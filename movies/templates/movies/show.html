@@ -1,14 +1,58 @@
-{% extends 'base.html' %} {% block content %} <style>
-  .btn-gradient{background:linear-gradient(90deg,#ff4d6d,#b5179e,#6a11cb);color:#fff!important;border:none!important;border-radius:10px;font-weight:600;box-shadow:0 6px 18px rgba(106,17,203,.35);transition:transform .15s ease,box-shadow .2s ease,filter .2s ease}
-  .btn-gradient:hover{filter:brightness(1.05);transform:translateY(-1px);box-shadow:0 10px 26px rgba(106,17,203,.5)}
-  .btn-gradient:active{transform:translateY(0)}
-  .quantity-input{color:#fff;background:transparent;border:1px solid transparent;border-radius:10px;background-image:linear-gradient(#111,#111),linear-gradient(90deg,#ff4d6d,#b5179e,#6a11cb);background-origin:border-box;background-clip:padding-box,border-box}
+{% extends 'base.html' %} {% block content %} 
+<style>
+  .btn-gradient{
+    background:linear-gradient(90deg,#ff4d6d,#b5179e,#6a11cb);
+    color:#fff!important;
+    border:none!important;
+    border-radius:10px;
+    font-weight:600;
+    box-shadow:0 6px 18px rgba(106,17,203,.35);transition:transform .15s ease,box-shadow .2s ease,filter .2s ease
+  }
+  .btn-gradient:hover{
+    filter:brightness(1.05);transform:translateY(-1px);box-shadow:0 10px 26px rgba(106,17,203,.5)
+  }
+  .btn-gradient:active{
+    transform:translateY(0)
+  }
+  .quantity-input{
+    color:#fff;
+    background:transparent;
+    border:1px solid transparent;
+    border-radius:10px;
+    background-image:linear-gradient(#111,#111),linear-gradient(90deg,#ff4d6d,#b5179e,#6a11cb);background-origin:border-box;
+    background-clip:padding-box,border-box
+  }
   /* Detail page poster: strict size + centered (Safari-friendly) */
-  #detail-poster-wrap{display:flex;justify-content:center;align-items:flex-start}
-  #detail-poster{width:320px!important;height:480px!important;object-fit:cover!important;object-position:center!important;border-radius:12px!important;box-shadow:0 10px 24px rgba(0,0,0,.45)}
+  #detail-poster-wrap{
+    display:flex;
+    justify-content:center;
+    align-items:flex-start
+  }
+  #detail-poster{
+    width:320px!important;
+    height:480px!important;
+    object-fit:cover!important;
+    object-position:center!important;
+    border-radius:12px!important;
+    box-shadow:0 10px 24px rgba(0,0,0,.45)
+  }
   @media (max-width: 576px){
     #detail-poster{width:260px!important;height:390px!important}
+
+    .star-rating i{
+  transition: color 0.2s;
+    }
+    .star-rating i.selected{
+  color: #FFD700;
+    }
   }
+  .review-stars i {
+  margin-right: 2px;
+  transition: transform 0.2s ease;
+}
+.review-stars i:hover {
+  transform: scale(1.1);
+}
 </style>
 <div class="p-3">
   <div class="container">
@@ -16,6 +60,22 @@
       <div class="col-md-6 mx-auto mb-3">
         <h2>{{ template_data.movie.name }}</h2>
         <hr />
+        {% if template_data.avg_rating %}
+        <p>
+          <b>Average Rating:</b> 
+          <span style="color: #FFD700; font-size: 1.2rem;">
+            {% for i in "12345" %}
+              {% if forloop.counter <= template_data.avg_rating|floatformat:0 %}
+              <i class="fa fa-star"></i>
+              {% else %}
+              <i class="fa fa-star-o"></i>
+              {% endif %}
+            {% endfor %}
+          </span>
+          ({{ template_data.avg_rating }}/5)
+        </p>
+        {% endif %}
+        
         <p><b>Description:</b> {{ template_data.movie.description }}</p>
         <p><b>Price:</b> ${{ template_data.movie.price }}</p>
         <p class="card-text">
@@ -47,6 +107,14 @@
           <li class="list-group-item pb-3 pt-3">
             <h5 class="card-title">Review by {{ review.user.username }}</h5>
             <h6 class="card-subtitle mb-2 text-muted">{{ review.date }}</h6>
+            <!-- Review rating stars (display only, not clickable) -->
+            <!-- Only show the number of gold stars equal to the rating -->
+            <div class="review-stars mb-2">
+              {% for i in "12345" %}{% if forloop.counter <= review.rating %}
+              <i class="fa fa-star" style="color: #FFD700; font-size: 1.2rem;"></i>
+              {% endif %}{% endfor %}
+            </div>
+
             <p class="card-text">{{ review.comment }}</p>
             {% if user.is_authenticated and user == review.user %}
             <a
@@ -67,17 +135,28 @@
         </ul>
 
         {% if user.is_authenticated %}
+          {% if template_data.user_review_exists %}
+          <div class="alert alert-info mt-3">
+            You’ve already reviewed this movie. You can <a href="{% url 'movies.edit_review' id=template_data.movie.id review_id=template_data.user_review_id %}">edit your review</a> instead.
+          </div>
+          {% else %}
         <div class="container mt-4">
           <div class="row justify-content-center">
             <div class="col-12">
-              <div class="card shadow p-3 mb-4 rounded">
+              <div class="card shadow p-3 mb-2 rounded">
                 <div class="card-body">
-                  <b class="text-start">Create a review</b><br /><br />
+                  <h3><b class="text-start">Leave a Review!</b></h3>
                   <form
                     method="POST"
                     action="{% url 'movies.create_review' id=template_data.movie.id %}"
                   >
                     {% csrf_token %}
+                    <div class="star-rating mb-3" style="font-size: 1.8rem; color: #ccc; cursor: pointer;">
+                      {% for i in "12345" %}
+                      <i class="fa fa-star" data-value="{{ forloop.counter }}"></i>
+                      {% endfor %}
+                    </div>
+                    <input type="hidden" name="rating" id="rating" value="0">
                     <p>
                       <label for="comment">Comment:</label>
                       <textarea
@@ -100,6 +179,7 @@
           </div>
         </div>
         {% endif %}
+        {% endif %}
       </div>
       <div class="col-md-6 mx-auto mb-3" id="detail-poster-wrap">
         <img
@@ -111,4 +191,45 @@
     </div>
   </div>
 </div>
+<script>
+// Wait until the DOM content is fully loaded before running the script
+document.addEventListener("DOMContentLoaded", () => {
+  // Select all the star icons in the star rating container
+  const stars = document.querySelectorAll(".star-rating i");
+  // Select the hidden input that stores the numeric rating value
+  const ratingInput = document.getElementById("rating");
+
+  // Iterate over each star to attach event listeners
+  stars.forEach(star => {
+    // When the mouse hovers over a star
+    star.addEventListener("mouseover", () => {
+      // Get the numeric value of the hovered star
+      const val = parseInt(star.getAttribute("data-value"));
+      // Highlight all stars up to the hovered one by changing their color to gold (#FFD700)
+      // and set the rest to the default gray (#ccc)
+      stars.forEach(s => s.style.color = s.getAttribute("data-value") <= val ? "#FFD700" : "#ccc");
+    });
+
+    // When a star is clicked
+    star.addEventListener("click", () => {
+      // Get the numeric value of the clicked star
+      const val = parseInt(star.getAttribute("data-value"));
+      // Update the hidden input's value to store the selected rating
+      ratingInput.value = val;
+      // Add the 'selected' class to all stars up to the clicked one to visually indicate the selected rating
+      // Remove the 'selected' class from stars beyond the clicked one
+      stars.forEach(s => s.classList.toggle("selected", s.getAttribute("data-value") <= val));
+    });
+
+    // When the mouse leaves a star
+    star.addEventListener("mouseout", () => {
+      // Retrieve the currently selected rating from the hidden input
+      const selected = parseInt(ratingInput.value);
+      // Reset the star colors to reflect the selected rating:
+      // stars up to the selected rating are gold, others are gray
+      stars.forEach(s => s.style.color = s.getAttribute("data-value") <= selected ? "#FFD700" : "#ccc");
+    });
+  });
+});
+</script>
 {% endblock content %}

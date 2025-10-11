@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 #Movie class is inheriting from models.Model
@@ -32,6 +33,12 @@ class Review(models.Model):
     #comment is a CharField, which represents a string field with a maximum length of 255 characters. It stores the movie review text.
     comment = models.CharField(max_length=255)
 
+    # rating is a PositiveSmallIntegerField that stores user ratings between 1 and 5.
+    rating = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        default=1
+    )
+
     #date is a DateTimeField , which is used for date and time data. The auto_now_add=True ensures that the date and time are automatically set to the current date and time when the review is created.
     date = models.DateTimeField(auto_now_add=True)
 
@@ -42,6 +49,8 @@ class Review(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     def __str__(self):
         return str(self.id) + ' - ' + self.movie.name
+    class Meta:
+        unique_together = ('user', 'movie')
 
 class Petition(models.Model):
     id = models.AutoField(primary_key=True)

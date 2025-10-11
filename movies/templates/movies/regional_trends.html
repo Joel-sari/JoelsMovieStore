@@ -167,10 +167,16 @@
             document.getElementById("map-data").textContent
           );
 
+          /**
+           * Initialize the Google Map with optional center.
+           * Sets default center if none provided.
+           * Applies custom styles and adds markers with InfoWindows.
+           */
           function initMap(center) {
             const defaultCenter = { lat: 39.8283, lng: -98.5795 };
             const mapCenter = center || defaultCenter;
 
+            // Create map instance with custom styles and zoom level
             window.map = new google.maps.Map(document.getElementById("map"), {
               zoom: 4,
               center: mapCenter,
@@ -195,6 +201,7 @@
             const bounds = new google.maps.LatLngBounds();
             let openInfoWindow = null;
 
+            // Add markers for each data point with clickable InfoWindows
             mapData.forEach((item) => {
               const position = { lat: item.latitude, lng: item.longitude };
               const marker = new google.maps.Marker({
@@ -207,6 +214,7 @@
                 },
               });
 
+              // Create InfoWindow with movie details and poster
               const infoWindow = new google.maps.InfoWindow({
                 content: `
                   <div style="background: #1d2c4d; color: #fff; padding: 8px; border-radius: 10px; text-align: center;">
@@ -224,6 +232,7 @@
                   </div>`,
               });
 
+              // Open InfoWindow on marker click, closing any previously open window
               marker.addListener("click", () => {
                 if (openInfoWindow) openInfoWindow.close();
                 infoWindow.open(window.map, marker);
@@ -233,10 +242,11 @@
               bounds.extend(position);
             });
 
+            // Adjust map bounds to fit all markers if data exists
             if (mapData.length > 0) window.map.fitBounds(bounds);
           }
 
-          // Geolocation logic
+          // Geolocation logic to get user position and update map accordingly
           if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
               (position) => {
@@ -246,6 +256,7 @@
                 };
                 window.userLocation = userLocation;
 
+                // Reverse geocode to get human-readable location name
                 const geocoder = new google.maps.Geocoder();
                 geocoder.geocode(
                   { location: userLocation },
@@ -268,6 +279,7 @@
 
                 initMap(userLocation);
 
+                // Draw a pulsing circle around user's location
                 const circle = new google.maps.Circle({
                   strokeColor: "rgba(138, 43, 226, 0.8)",
                   strokeOpacity: 0.9,
@@ -279,6 +291,7 @@
                   radius: 40000,
                 });
 
+                // Animate circle radius and opacity for pulsing effect
                 let t = 0;
                 function smoothPulse() {
                   t += 0.03;
@@ -290,14 +303,14 @@
                 }
                 smoothPulse();
               },
-              () => initMap()
+              () => initMap() // Fallback to default map if geolocation fails
             );
-          } else initMap();
+          } else initMap(); // Initialize map without user location if unsupported
 
           window.initMap = initMap;
         });
 
-        // Share My Location button
+        // Handle "Share My Location" button click to request and store location sharing consent
         document.addEventListener("DOMContentLoaded", function () {
           const locationBtn = document.getElementById("request-location");
           if (locationBtn) {
@@ -310,6 +323,7 @@
               if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                   (pos) => {
+                    // Store consent flag and reload page to update map
                     localStorage.setItem("locationShared", "true");
                     alert("✅ Location successfully shared!");
                     window.location.reload();
@@ -325,7 +339,7 @@
           }
         });
 
-        // Zoom to My Location button
+        // Handle "Zoom to My Location" button click to smoothly zoom and pan to user's location
         document.addEventListener("DOMContentLoaded", function () {
           const zoomBtn = document.getElementById("zoom-my-location");
           if (zoomBtn) {
@@ -333,6 +347,7 @@
               if (window.map && window.userLocation) {
                 let currentZoom = window.map.getZoom();
                 const targetZoom = 8;
+                // Increment zoom gradually for smooth zoom effect
                 const zoomInterval = setInterval(() => {
                   if (currentZoom < targetZoom) {
                     currentZoom += 0.5;
@@ -344,6 +359,7 @@
             });
           }
         });
+        // Search bar functionality: geocode input and center map on result
         document.addEventListener("DOMContentLoaded", function () {
           const searchBtn = document.getElementById("search-btn");
           const searchInput = document.getElementById("location-search");
@@ -359,7 +375,7 @@
                   const location = results[0].geometry.location;
                   window.map.setCenter(location);
 
-                  // Adjust zoom dynamically based on area size
+                  // Adjust zoom dynamically based on whether location is a country or city
                   const addressComponents = results[0].address_components;
                   const isCountry = addressComponents.some((comp) =>
                     comp.types.includes("country")

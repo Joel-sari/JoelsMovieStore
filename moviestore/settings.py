@@ -17,7 +17,7 @@ DEBUG: Our site can run in debug mode or not. In debug mode, we get detailed inf
 """
 
 from dotenv import load_dotenv
-load_dotenv()  # load environment variables from .env
+load_dotenv(os.path.expanduser("~/.env"))  # load environment variables from .env
 import os
 from pathlib import Path
 
